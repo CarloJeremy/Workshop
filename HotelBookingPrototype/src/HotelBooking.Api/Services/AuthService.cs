@@ -162,7 +162,11 @@ public class AuthService
         }
 
         customer.FailedAttemptCount = 0;
+        var prevLogin = customer.LastLoginAt;
         customer.LastLoginAt = DateTime.UtcNow;
+        // UAT-LOG-01: waktu login terakhir tercatat — dicatat juga di jejak audit.
+        _db.AddAudit("Customer", customer.CustomerId, "LOGIN", prevLogin?.ToString("O"),
+            customer.LastLoginAt?.ToString("O"), customer.Email);
 
         var refreshValue = _tokens.NewRefreshTokenValue();
         var refresh = new RefreshToken
@@ -179,7 +183,8 @@ public class AuthService
             expires_in = _tokens.AccessTokenSeconds,
             refresh_token = refreshValue,
             customer_id = customer.CustomerId,
-            role = customer.Role
+            role = customer.Role,
+            last_login_at = customer.LastLoginAt
         };
     }
 

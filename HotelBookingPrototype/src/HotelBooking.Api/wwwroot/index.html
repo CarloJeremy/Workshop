@@ -29,6 +29,7 @@
   .nav .links button.active { color:var(--blue); font-weight:700; background:var(--blue-soft); }
   .nav .right { margin-left:auto; display:flex; align-items:center; gap:10px; }
   .user-chip { display:flex; align-items:center; gap:8px; background:var(--blue-soft); padding:6px 12px; border-radius:999px; font-size:13px; color:var(--blue); font-weight:600; }
+  .user-chip small { display:block; font-size:10px; font-weight:500; opacity:.75; line-height:1.3; }
   .btn { border:none; border-radius:10px; padding:11px 22px; font-size:14px; font-weight:700; cursor:pointer; transition:.15s; }
   .btn:disabled { opacity:.55; cursor:not-allowed; }
   .btn-primary { background:var(--blue); color:#fff; } .btn-primary:hover:not(:disabled) { background:#0053ad; }
@@ -185,7 +186,7 @@
     <div class="right">
       <a href="/apitester.html" style="font-size:13px">API Tester</a>
       <a href="/swagger" target="_blank" style="font-size:13px">Swagger</a>
-      <div class="user-chip hidden" id="user-chip">👤 <span id="user-name">-</span></div>
+      <div class="user-chip hidden" id="user-chip">👤 <div><span id="user-name">-</span><small id="last-login"></small></div></div>
       <button class="btn btn-primary btn-sm hidden" id="btn-logout" onclick="logout()">Keluar</button>
       <button class="btn btn-primary btn-sm" id="btn-login" onclick="openAuth('login')">Masuk / Daftar</button>
     </div>
@@ -504,6 +505,8 @@ function setWho() {
   $('btn-login').classList.toggle('hidden', loggedIn);
   $('btn-logout').classList.toggle('hidden', !loggedIn);
   $('user-name').textContent = (localStorage.getItem('hk_email') || 'Pengguna') + (role && role !== 'Customer' ? ' · ' + role : '');
+  const ll = localStorage.getItem('hk_lastlogin');
+  $('last-login').textContent = ll ? 'Login terakhir: ' + new Date(ll).toLocaleString('id-ID') : '';
 }
 function openAuth(mode) {
   $('modal-auth').classList.add('open');
@@ -523,8 +526,9 @@ async function login() {
     token = d.access_token; role = d.role || 'Customer';
     localStorage.setItem('hk_token', token); localStorage.setItem('hk_role', role);
     localStorage.setItem('hk_email', $('login-email').value.trim());
+    if (d.last_login_at) localStorage.setItem('hk_lastlogin', d.last_login_at);
     setWho(); closeModal('modal-auth');
-    toast('Login berhasil — selamat datang! 🎉');
+    toast('Login berhasil — selamat datang! 🎉' + (d.last_login_at ? '<br><small>Login terakhir: ' + new Date(d.last_login_at).toLocaleString('id-ID') + '</small>' : ''));
   } catch (e) { toast(e.message, true); }
 }
 async function register() {
@@ -567,6 +571,7 @@ async function logout() {
   try { await api('POST', '/api/v1/auth/logout', {}); } catch (e) { /* token tetap dibersihkan */ }
   token = ''; role = '';
   localStorage.removeItem('hk_token'); localStorage.removeItem('hk_role'); localStorage.removeItem('hk_email');
+  localStorage.removeItem('hk_lastlogin');
   setWho(); toast('Kamu telah keluar.'); go('home');
 }
 
@@ -901,9 +906,15 @@ async function openCancel(bookingId) {
 
 async function confirmCancel() {
   try {
-    await api('POST', `/api/v1/bookings/${state.cancelId}/cancel`, { reason: $('cancel-reason').value.trim() || '-' });
+    const d = await api('POST', `/api/v1/bookings/${state.cancelId}/cancel`, { reason: $('cancel-reason').value.trim() || '-' });
     closeModal('modal-cancel');
-    toast('Booking berhasil dibatalkan.');
+    if (d.refund_id) {
+      toast('Booking berhasil dibatalkan. ✅ <b>Pengajuan refund dibuat</b> — status <b>PENDING_APPROVAL</b> (menunggu persetujuan Finance). Detail nominal & penalty ada di menu <b>Refund</b>.');
+    } else if (d.refundable === false) {
+      toast('Booking berhasil dibatalkan. ⛔ Kamar <b>Non-Refundable</b> — tidak ada pengembalian dana, jadi tidak ada pengajuan refund (menu Refund tetap kosong).');
+    } else {
+      toast('Booking berhasil dibatalkan.');
+    }
     loadHistory(state.historyGroup);
   } catch (e) { toast(e.message, true); }
 }
@@ -953,17 +964,24 @@ async function loadRefunds() {
   }
   try {
     const items = await api('GET', '/api/v1/refunds');
+    const isStaff = role && role !== 'Customer';
+    const sub = document.querySelector('#view-refunds .block-head .sub');
+    if (sub) sub.textContent = isStaff
+      ? 'Console Finance/Admin — semua pengajuan refund pelanggan'
+      : 'Pantau status pengembalian dana milik Anda';
     if (!items.length) {
-      el.innerHTML = '<div class="empty"><span class="ico">↩️</span>Belum ada pengajuan refund.</div>';
+      el.innerHTML = isStaff
+        ? '<div class="empty"><span class="ico">↩️</span>Belum ada pengajuan refund dari pelanggan.<br><small class="muted">Pengajuan hanya dibuat saat pembatalan booking berbayar dengan kebijakan <b>Flexible</b> — pembatalan Non-Refundable tidak menghasilkan refund.</small></div>'
+        : '<div class="empty"><span class="ico">↩️</span>Belum ada pengajuan refund.<br><small class="muted">Pengajuan refund otomatis dibuat saat Anda membatalkan booking berbayar dengan kebijakan <b>Flexible</b>.</small></div>';
       return;
     }
     el.innerHTML = items.map(r => `
       <div class="booking-card">
         <div class="top">
           <div>
-            <h3>Refund ${esc(r.refundId.slice(0, 8))}…</h3>
+            <h3>Refund ${esc(r.bookingNumber || r.refundId.slice(0, 8))}</h3>
             <div class="meta">
-              🎫 Booking ${esc(r.bookingId.slice(0, 8))}… · Pembayaran: ${esc(r.paymentReference || '-')}<br>
+              🎫 Booking <b>${esc(r.bookingNumber || '-')}</b> · 👤 ${esc(r.customerName || '-')} · Pembayaran: ${esc(r.paymentReference || '-')}<br>
               💸 Penalty: ${fmt(r.penaltyAmount, r.currency)} · Dibuat: ${new Date(r.createdAt).toLocaleString('id-ID')}
               ${r.reason ? `<br>📝 Alasan: ${esc(r.reason)}` : ''}
             </div>

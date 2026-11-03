@@ -206,11 +206,18 @@ public class RefundService
         return ToDto(refund);
     }
 
-    public static RefundDto ToDto(Refund r) => new(
-        r.RefundId, r.CancellationId, r.BookingId, r.PaymentReference,
+    public RefundDto ToDto(Refund r)
+    {
+        var booking = _db.Bookings.GetValueOrDefault(r.BookingId);
+        var customer = booking == null ? null : _db.Customers.GetValueOrDefault(booking.CustomerId);
+        return new RefundDto(
+        r.RefundId, r.CancellationId, r.BookingId,
+        booking?.BookingNumber ?? "-", customer?.FullName ?? "-",
+        r.PaymentReference,
         r.TotalPaid, r.PenaltyAmount, r.RefundAmount, r.Currency,
         BookingService.EnumText(r.Status), r.FinanceDecision, r.Reason,
         r.CreatedAt, r.ProcessedAt, r.CompletedAt);
+    }
 }
 
 /// <summary>

@@ -42,7 +42,8 @@ public record ETicketVerifyDto(string BookingNumber, string HotelName, string Gu
     string BookingStatus, bool ValidForCheckIn);
 
 // ---------- Refund ----------
-public record RefundDto(Guid RefundId, Guid CancellationId, Guid BookingId, string PaymentReference,
+public record RefundDto(Guid RefundId, Guid CancellationId, Guid BookingId, string BookingNumber,
+    string CustomerName, string PaymentReference,
     decimal TotalPaid, decimal PenaltyAmount, decimal RefundAmount, string Currency, string Status,
     string? FinanceDecision, string? Reason, DateTime CreatedAt, DateTime? ProcessedAt, DateTime? CompletedAt);
 public record RejectRefundRequest(string Reason);
