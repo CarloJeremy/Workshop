@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup — HotelKu · Hotel Booking Prototype</title>
+<style>
+  /* ============ Token visual (disamakan dengan aplikasi) ============ */
+  :root {
+    --blue:#0064d2; --blue2:#1b9fe0; --blue-soft:#e8f2fd;
+    --orange:#f26b22; --orange-dark:#d9530e;
+    --bg:#f5f7fa; --card:#fff; --text:#24292f; --muted:#6b7785;
+    --green:#00875a; --red:#d93025; --amber:#b26a00;
+    --border:#e3e8ee; --radius:12px; --shadow:0 2px 10px rgba(20,40,80,.08);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:var(--bg); color:var(--text); line-height:1.5;
+  }
+
+  /* ============ Kepala dokumen mockup ============ */
+  .doc-head {
+    background:#fff; border-bottom:1px solid var(--border);
+    padding:34px 28px 26px;
+  }
+  .doc-head .inner { max-width:1180px; margin:0 auto; }
+  .doc-kicker { font-size:12.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); }
+  .doc-head h1 { font-size:30px; margin-top:6px; letter-spacing:-.01em; }
+  .doc-head p { color:var(--muted); margin-top:8px; max-width:640px; font-size:14.5px; }
+  .doc-meta { display:flex; gap:26px; margin-top:18px; flex-wrap:wrap; }
+  .doc-meta div { font-size:12.5px; color:var(--muted); }
+  .doc-meta b { display:block; font-size:13.5px; color:var(--text); }
+
+  /* alur */
+  .flow {
+    max-width:1180px; margin:26px auto 0; display:flex; align-items:center; gap:0;
+    background:#fff; border:1px solid var(--border); border-radius:14px; padding:18px 22px;
+  }
+  .flow .step { display:flex; align-items:center; gap:10px; }
+  .flow .num {
+    width:28px; height:28px; border-radius:50%; background:var(--blue-soft); color:var(--blue);
+    font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center; flex:none;
+  }
+  .flow .step.on .num { background:var(--blue); color:#fff; }
+  .flow .step span { font-size:13.5px; font-weight:600; white-space:nowrap; }
+  .flow .arr { flex:1; height:1.5px; background:var(--border); margin:0 14px; min-width:22px; }
+
+  /* ============ Panel layar ============ */
+  .board { max-width:1180px; margin:0 auto; padding:34px 28px 70px; }
+  .screen { margin-top:52px; }
+  .screen:first-child { margin-top:8px; }
+  .screen-head { display:flex; align-items:baseline; gap:14px; margin-bottom:6px; }
+  .screen-head .no {
+    font-size:12px; font-weight:800; color:var(--blue); background:var(--blue-soft);
+    padding:4px 11px; border-radius:999px; letter-spacing:.08em;
+  }
+  .screen-head h2 { font-size:20px; letter-spacing:-.01em; }
+  .screen-head .surf { margin-left:auto; font-size:11.5px; font-weight:700; color:var(--muted);
+    border:1px solid var(--border); padding:3px 10px; border-radius:999px; text-transform:uppercase; letter-spacing:.08em; }
+  .caption { color:var(--muted); font-size:13.5px; max-width:720px; margin-bottom:16px; }
+  .caption b { color:var(--text); }
+
+  /* frame browser */
+  .frame {
+    background:var(--card); border:1px solid var(--border); border-radius:16px;
+    box-shadow:0 12px 34px rgba(20,40,80,.10); overflow:hidden;
+  }
+  .titlebar {
+    display:flex; align-items:center; gap:8px; padding:11px 16px;
+    background:#eef2f7; border-bottom:1px solid var(--border);
+  }
+  .dots { display:flex; gap:6px; }
+  .dots i { width:10.5px; height:10.5px; border-radius:50%; display:block; }
+  .dots i:nth-child(1){ background:#f26b5b; } .dots i:nth-child(2){ background:#f6be4f; } .dots i:nth-child(3){ background:#61c554; }
+  .url {
+    flex:1; max-width:430px; margin:0 auto; background:#fff; border:1px solid var(--border);
+    border-radius:8px; padding:5px 12px; font-size:12px; color:var(--muted);
+  }
+  .viewport { padding:0; position:relative; }
+
+  /* ============ Komponen aplikasi (gaya asli) ============ */
+  .app-nav {
+    display:flex; align-items:center; gap:22px; padding:12px 22px; background:#fff;
+    border-bottom:1px solid var(--border);
+  }
+  .logo { display:flex; align-items:center; gap:8px; font-size:18px; font-weight:800; color:var(--blue); }
+  .logo .mark {
+    width:28px; height:28px; background:linear-gradient(135deg,var(--blue),var(--blue2));
+    border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:14px;
+  }
+  .app-nav .links { display:flex; gap:4px; }
+  .app-nav .links span {
+    padding:8px 12px; font-size:13px; color:var(--muted); border-radius:8px;
+  }
+  .app-nav .links span.active { color:var(--blue); font-weight:700; background:var(--blue-soft); }
+  .app-nav .right { margin-left:auto; display:flex; align-items:center; gap:10px; }
+  .user-chip {
+    display:flex; align-items:center; gap:7px; background:var(--blue-soft); padding:5px 12px;
+    border-radius:999px; font-size:12.5px; color:var(--blue); font-weight:600;
+  }
+  .btn { border:none; border-radius:10px; padding:10px 20px; font-size:13.5px; font-weight:700; cursor:default; display:inline-block; }
+  .btn-primary { background:var(--blue); color:#fff; }
+  .btn-orange { background:var(--orange); color:#fff; }
+  .btn-ghost { background:#fff; color:var(--blue); border:1.5px solid var(--blue); }
+  .btn-soft { background:var(--blue-soft); color:var(--blue); }
+  .btn-danger { background:#fdecea; color:var(--red); }
+  .btn-sm { padding:7px 13px; font-size:12.5px; border-radius:8px; }
+
+  .hero {
+    background:linear-gradient(120deg,#0055b8 0%, var(--blue) 45%, var(--blue2) 100%);
+    padding:38px 22px 84px; position:relative; overflow:hidden;
+  }
+  .hero::after {
+    content:""; position:absolute; inset:0;
+    background:radial-gradient(circle at 82% -30%, rgba(255,255,255,.18), transparent 55%);
+  }
+  .hero h1 { color:#fff; font-size:27px; line-height:1.25; max-width:520px; letter-spacing:-.01em; }
+  .hero p { color:#dbeafe; margin-top:8px; font-size:14.5px; }
+
+  .search-card {
+    max-width:1052px; margin:-52px auto 0; position:relative; z-index:2;
+    background:#fff; border-radius:14px; box-shadow:var(--shadow); padding:18px 20px 20px;
+  }
+  .search-tabs { display:flex; gap:6px; margin-bottom:13px; }
+  .search-tabs span {
+    padding:6px 15px; border-radius:999px; font-size:12.5px; background:var(--blue-soft);
+    color:var(--blue); font-weight:600;
+  }
+  .search-tabs span.dim { background:#f1f4f8; color:var(--muted); font-weight:500; }
+  .search-grid { display:flex; gap:11px; }
+  .field { flex:1; min-width:0; }
+  .field label { display:block; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px; }
+  .field .val {
+    border:1.5px solid var(--border); border-radius:10px; padding:11px 12px; font-size:13.5px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .field .val.focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(0,100,210,.12); }
+  .search-grid .btn-primary { align-self:stretch; padding:11px 28px; border-radius:10px; display:flex; align-items:center; }
+
+  .section { padding:26px 22px; }
+  .section h3 { font-size:17px; letter-spacing:-.01em; }
+  .section .sub { color:var(--muted); font-size:13px; margin-top:3px; margin-bottom:15px; }
+  .chips { display:flex; gap:9px; flex-wrap:wrap; margin-bottom:18px; }
+  .chip {
+    padding:7px 15px; background:#fff; border:1.5px solid var(--border); border-radius:999px;
+    font-size:12.5px; font-weight:600;
+  }
+  .chip.sel { border-color:var(--blue); color:var(--blue); background:var(--blue-soft); }
+
+  .hotel-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:15px; }
+  .hotel-card { background:#fff; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+  .thumb { height:128px; display:flex; align-items:center; justify-content:center; font-size:46px; position:relative; }
+  .thumb .city-tag {
+    position:absolute; top:10px; left:10px; background:rgba(255,255,255,.92); color:var(--blue);
+    font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px;
+  }
+  .hotel-card .body { padding:13px 14px 15px; }
+  .hotel-card h4 { font-size:14.5px; }
+  .hotel-card .loc { color:var(--muted); font-size:12px; margin-top:2px; }
+  .rating { display:inline-flex; align-items:center; gap:5px; margin:6px 0; }
+  .rating .score { background:var(--blue); color:#fff; font-size:11.5px; font-weight:800; padding:2px 8px; border-radius:7px; }
+  .rating small { color:var(--muted); font-size:11.5px; }
+  .facil { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:10px; }
+  .facil span { font-size:10.5px; color:var(--muted); background:#f1f4f8; padding:2.5px 8px; border-radius:999px; }
+  .price-row { display:flex; align-items:flex-end; justify-content:space-between; }
+  .price b { font-size:15.5px; color:var(--text); }
+  .price small { display:block; color:var(--muted); font-size:10.5px; }
+  .disc { color:var(--green); font-size:11px; font-weight:700; }
+
+  /* detail hotel */
+  .detail-wrap { display:grid; grid-template-columns:1.55fr 1fr; gap:18px; padding:22px; }
+  .panel { background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:17px 18px; }
+  .panel h4 { font-size:14.5px; margin-bottom:10px; }
+  .room-row {
+    display:flex; align-items:center; gap:13px; padding:12px 0; border-top:1px solid var(--border);
+  }
+  .room-row:first-of-type { border-top:none; }
+  .room-ico {
+    width:44px; height:44px; border-radius:10px; background:var(--blue-soft); display:flex;
+    align-items:center; justify-content:center; font-size:20px; flex:none;
+  }
+  .room-row .info { flex:1; min-width:0; }
+  .room-row .info b { font-size:13.5px; }
+  .room-row .info small { display:block; color:var(--muted); font-size:11.5px; }
+  .pill {
+    font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:999px; display:inline-block;
+  }
+  .pill.green { background:#e6f4ee; color:var(--green); }
+  .pill.red { background:#fdecea; color:var(--red); }
+  .pill.amber { background:#fdf3e3; color:var(--amber); }
+  .pill.blue { background:var(--blue-soft); color:var(--blue); }
+  .room-row .price b { font-size:14px; }
+  .room-row .price small { display:block; color:var(--muted); font-size:10.5px; text-align:right; }
+
+  .sum-row { display:flex; justify-content:space-between; font-size:13px; padding:6px 0; }
+  .sum-row .lbl { color:var(--muted); }
+  .sum-row.total { border-top:1.5px solid var(--border); margin-top:7px; padding-top:11px; font-size:15px; font-weight:800; }
+  .sum-row.total .lbl { color:var(--text); font-weight:700; }
+  .sum-row.total .val { color:var(--blue); }
+
+  /* stepper */
+  .stepper { display:flex; align-items:center; gap:0; padding:20px 22px 2px; }
+  .stepper .st { display:flex; align-items:center; gap:9px; }
+  .stepper .st .n {
+    width:26px; height:26px; border-radius:50%; background:#e6ebf1; color:var(--muted);
+    font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center;
+  }
+  .stepper .st.done .n { background:var(--green); color:#fff; }
+  .stepper .st.on .n { background:var(--blue); color:#fff; }
+  .stepper .st span { font-size:12.5px; font-weight:600; color:var(--muted); }
+  .stepper .st.done span, .stepper .st.on span { color:var(--text); }
+  .stepper .bar { flex:1; height:1.5px; background:var(--border); margin:0 12px; }
+
+  /* pembayaran */
+  .pay-wrap { display:grid; grid-template-columns:1.5fr 1fr; gap:18px; padding:20px 22px 24px; }
+  .countdown {
+    display:flex; align-items:center; gap:9px; background:#fdf3e3; color:var(--amber);
+    border:1px solid #f3dfbd; border-radius:10px; padding:10px 14px; font-size:12.5px; font-weight:700; margin-bottom:14px;
+  }
+  .countdown .clock { font-size:16px; font-variant-numeric:tabular-nums; letter-spacing:.03em; }
+  .pay-methods { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+  .pay-tile {
+    border:1.5px solid var(--border); border-radius:11px; padding:12px 13px; display:flex;
+    align-items:center; gap:10px;
+  }
+  .pay-tile.sel { border-color:var(--blue); background:var(--blue-soft); }
+  .pay-tile .ico {
+    width:36px; height:36px; border-radius:9px; background:#fff; border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-size:17px; flex:none;
+  }
+  .pay-tile b { font-size:12.5px; display:block; }
+  .pay-tile small { color:var(--muted); font-size:10.5px; }
+  .radio { margin-left:auto; width:17px; height:17px; border-radius:50%; border:2px solid var(--border); flex:none; }
+  .pay-tile.sel .radio { border-color:var(--blue); background:radial-gradient(circle, var(--blue) 45%, transparent 50%); }
+  .va-box {
+    margin-top:13px; border:1.5px dashed var(--blue); border-radius:11px; padding:13px 15px;
+    background:var(--blue-soft);
+  }
+  .va-box .code { font-size:19px; font-weight:800; letter-spacing:.14em; color:var(--blue); font-variant-numeric:tabular-nums; }
+  .va-box small { color:var(--muted); font-size:11px; display:block; margin-top:2px; }
+
+  /* e-ticket */
+  .ticket-wrap { display:grid; grid-template-columns:1.35fr 1fr; gap:18px; padding:22px; }
+  .ticket { background:#fff; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+  .ticket .top {
+    background:linear-gradient(120deg,#0055b8, var(--blue2)); color:#fff; padding:15px 18px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .ticket .top b { font-size:15px; }
+  .ticket .top small { opacity:.85; font-size:11px; display:block; }
+  .ticket .qr-row { display:flex; gap:18px; padding:18px; align-items:center; }
+  .qr {
+    width:118px; height:118px; flex:none; border-radius:10px; border:1px solid var(--border);
+    background:
+      repeating-conic-gradient(var(--text) 0% 25%, #fff 0% 50%) 0 0/16px 16px;
+    position:relative;
+  }
+  .qr::after {
+    content:"🎫"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:26px; background:rgba(255,255,255,.82); border-radius:10px;
+  }
+  .kv { display:grid; grid-template-columns:auto 1fr; gap:5px 14px; font-size:12.5px; }
+  .kv .k { color:var(--muted); }
+  .kv .v { font-weight:600; }
+  .ok-note {
+    margin:0 18px 18px; background:#e6f4ee; color:var(--green); border-radius:10px;
+    padding:11px 14px; font-size:12.5px; font-weight:600;
+  }
+
+  /* booking saya */
+  .tabs { display:flex; gap:7px; padding:18px 22px 0; }
+  .tabs .t {
+    padding:8px 17px; border-radius:999px; font-size:12.5px; font-weight:700; color:var(--muted);
+    background:#eef2f7;
+  }
+  .tabs .t.on { background:var(--blue); color:#fff; }
+  .book-row {
+    display:flex; gap:14px; align-items:center; background:#fff; border:1px solid var(--border);
+    border-radius:var(--radius); padding:14px 16px; margin:13px 22px;
+  }
+  .book-row .th {
+    width:88px; height:66px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+    font-size:27px; flex:none;
+  }
+  .book-row .info { flex:1; min-width:0; }
+  .book-row .info b { font-size:13.5px; }
+  .book-row .info small { display:block; color:var(--muted); font-size:11.5px; }
+  .book-row .acts { display:flex; gap:8px; align-items:center; }
+
+  .modal-back {
+    margin:16px 22px 24px; border-radius:var(--radius); background:rgba(20,40,80,.42);
+    padding:34px;
+  }
+  .modal {
+    max-width:430px; margin:0 auto; background:#fff; border-radius:14px; padding:20px 21px;
+  }
+  .modal h4 { font-size:15.5px; }
+  .modal p { color:var(--muted); font-size:12.5px; margin-top:6px; }
+  .warn-box {
+    background:#fdf3e3; border:1px solid #f3dfbd; border-radius:10px; padding:11px 13px;
+    font-size:12px; color:var(--amber); margin-top:12px;
+  }
+  .modal .foot { display:flex; gap:9px; justify-content:flex-end; margin-top:15px; }
+
+  /* refund tabel */
+  .tbl { width:100%; border-collapse:collapse; font-size:12.5px; }
+  .tbl th {
+    text-align:left; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.05em;
+    padding:10px 13px; border-bottom:1.5px solid var(--border); font-weight:700;
+  }
+  .tbl td { padding:11px 13px; border-bottom:1px solid var(--border); }
+  .tbl tr:last-child td { border-bottom:none; }
+  .tbl .acts { display:flex; gap:6px; }
+
+  .annot {
+    display:flex; gap:10px; margin-top:14px; padding:13px 16px; background:#fff;
+    border:1px solid var(--border); border-left:3px solid var(--blue); border-radius:10px;
+  }
+  .annot .tag { font-size:11px; font-weight:800; color:var(--blue); letter-spacing:.06em; text-transform:uppercase; flex:none; padding-top:1px; }
+  .annot p { font-size:12.5px; color:var(--muted); }
+
+  .doc-foot {
+    border-top:1px solid var(--border); background:#fff; padding:22px 28px; color:var(--muted); font-size:12px;
+  }
+  .doc-foot .inner { max-width:1180px; margin:0 auto; display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+
+  @media (max-width: 900px) {
+    .hotel-grid, .detail-wrap, .pay-wrap, .ticket-wrap { grid-template-columns:1fr; }
+    .search-grid { flex-wrap:wrap; }
+    .flow { flex-wrap:wrap; gap:10px; }
+    .flow .arr { display:none; }
+    .app-nav .links { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= KEPALA DOKUMEN ================= -->
+<header class="doc-head">
+  <div class="inner">
+    <div class="doc-kicker">Mockup UI · Hotel Booking Prototype</div>
+    <h1>HotelKu — Pemesanan Hotel Online</h1>
+    <p>Mockup antarmuka berdasarkan aplikasi yang berjalan (ASP.NET Core 8 Web API + UI statis), mengacu gaya Traveloka yang disederhanakan sesuai TSD. Warna, tipografi, dan komponen mengikuti implementasi asli.</p>
+    <div class="doc-meta">
+      <div><b>6 layar</b>Alur utama pengguna &amp; Finance</div>
+      <div><b>Segoe UI</b>Tipografi sistem</div>
+      <div><b>#0064D2</b>Warna primer (biru)</div>
+      <div><b>#F26B22</b>Aksi utama (oranye)</div>
+    </div>
+
+    <div class="flow">
+      <div class="step on"><div class="num">1</div><span>Cari Hotel</span></div>
+      <div class="arr"></div>
+      <div class="step"><div class="num">2</div><span>Pilih Kamar</span></div>
+      <div class="arr"></div>
+      <div class="step"><div class="num">3</div><span>Bayar</span></div>
+      <div class="arr"></div>
+      <div class="step"><div class="num">4</div><span>E-Ticket</span></div>
+      <div class="arr"></div>
+      <div class="step"><div class="num">5</div><span>Kelola &amp; Refund</span></div>
+    </div>
+  </div>
+</header>
+
+<main class="board">
+
+  <!-- ================= LAYAR 1 : BERANDA + PENCARIAN ================= -->
+  <section class="screen">
+    <div class="screen-head">
+      <div class="no">LAYAR 01</div>
+      <h2>Beranda &amp; Pencarian Hotel</h2>
+      <div class="surf">Explore</div>
+    </div>
+    <p class="caption">Halaman awal setelah login: <b>hero + kartu pencarian</b> yang menonjol di atas lipatan, chip destinasi populer, dan kartu hotel dengan harga, rating, serta fasilitas — respons pencarian tampil langsung di bawahnya.</p>
+
+    <div class="frame">
+      <div class="titlebar">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <div class="url">http://localhost:5210/ &nbsp;·&nbsp; Beranda</div>
+      </div>
+      <div class="viewport">
+        <div class="app-nav">
+          <div class="logo"><div class="mark">🏨</div> HotelKu</div>
+          <div class="links">
+            <span class="active">Beranda</span><span>Booking Saya</span><span>Refund</span><span>Verifikasi QR</span>
+          </div>
+          <div class="right">
+            <div class="user-chip">👤 Budi Santoso</div>
+            <div class="btn btn-ghost btn-sm">Keluar</div>
+          </div>
+        </div>
+
+        <div class="hero">
+          <h1>Menginap jadi mudah, di mana saja.</h1>
+          <p>Cari hotel, bandingkan harga, dan dapatkan E-Ticket langsung.</p>
+        </div>
+
+        <div class="search-card">
+          <div class="search-tabs">
+            <span>Hotel</span><span class="dim">Villa</span><span class="dim">Apartemen</span>
+          </div>
+          <div class="search-grid">
+            <div class="field">
+              <label>Kota / Nama Hotel</label>
+              <div class="val focus">Jakarta</div>
+            </div>
+            <div class="field">
+              <label>Check-in — Check-out</label>
+              <div class="val">17 Nov 2026 — 20 Nov 2026</div>
+            </div>
+            <div class="field">
+              <label>Tamu &amp; Kamar</label>
+              <div class="val">2 Tamu · 1 Kamar</div>
+            </div>
+            <div class="btn btn-orange">🔍 Cari</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Destinasi populer</h3>
+          <div class="sub">Pilihan kota favorit pelanggan minggu ini.</div>
+          <div class="chips">
+            <div class="chip sel">Jakarta</div>
+            <div class="chip">Bali</div>
+            <div class="chip">Bandung</div>
+            <div class="chip">Yogyakarta</div>
+            <div class="chip">Surabaya</div>
+          </div>
+
+          <h3>Rekomendasi untukmu</h3>
+          <div class="sub">3 hotel ditemukan · 17–20 Nov 2026 · 2 tamu</div>
+          <div class="hotel-grid">
+            <div class="hotel-card">
+              <div class="thumb" style="background:linear-gradient(135deg,#dce9fb,#b9d4f7)">🏨<div class="city-tag">Jakarta</div></div>
+              <div class="body">
+                <h4>Astra Grand Hotel</h4>
+                <div class="loc">📍 Jl. Sudirman, Jakarta</div>
+                <div class="rating"><span class="score">8.6</span><small>Sangat Baik · 1.240 ulasan</small></div>
+                <div class="facil"><span>WiFi</span><span>Kolam Renang</span><span>Gym</span></div>
+                <div class="price-row">
+                  <div class="price"><b>Rp 1.250.000</b><small>/malam · sudah termasuk pajak</small></div>
+                  <div class="btn btn-primary btn-sm">Pilih</div>
+                </div>
+              </div>
+            </div>
+            <div class="hotel-card">
+              <div class="thumb" style="background:linear-gradient(135deg,#d9f2e6,#b3e4cd)">🌴<div class="city-tag">Bali</div></div>
+              <div class="body">
+                <h4>Ubud Paradise Resort</h4>
+                <div class="loc">📍 Jl. Raya Ubud, Bali</div>
+                <div class="rating"><span class="score">8.9</span><small>Luar Biasa · 2.6k ulasan</small></div>
+                <div class="facil"><span>WiFi</span><span>Spa</span><span>Kolam Renang</span></div>
+                <div class="price-row">
+                  <div class="price"><b>Rp 2.500.000</b><small>/malam · sudah termasuk pajak</small></div>
+                  <div class="disc">Hemat 12%</div>
+                </div>
+              </div>
+            </div>
+            <div class="hotel-card">
+              <div class="thumb" style="background:linear-gradient(135deg,#fce6d6,#f7c9a8)">🏔️<div class="city-tag">Bandung</div></div>
+              <div class="body">
+                <h4>Bandung Heritage Hotel</h4>
+                <div class="loc">📍 Jl. Asia Afrika, Bandung</div>
+                <div class="rating"><span class="score">8.4</span><small>Sangat Baik · 860 ulasan</small></div>
+                <div class="facil"><span>WiFi</span><span>Restoran</span><span>Parkir</span></div>
+                <div class="price-row">
+                  <div class="price"><b>Rp 550.000</b><small>/malam · sudah termasuk pajak</small></div>
+                  <div class="btn btn-primary btn-sm">Pilih</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="annot">
+      <div class="tag">Catatan</div>
+      <p>Thumbnail memakai gradasi warna + emoji sebagai placeholder — pada implementasi tinggal diganti URL gambar hotel (komponen <code>thumbStyle()</code>). Hotel nonaktif dan kamar dengan ketersediaan 0 otomatis tidak ditampilkan.</p>
+    </div>
+  </section>
+
+  <!-- ================= LAYAR 2 : DETAIL HOTEL ================= -->
+  <section class="screen">
+    <div class="screen-head">
+      <div class="no">LAYAR 02</div>
+      <h2>Detail Hotel &amp; Pemilihan Kamar</h2>
+      <div class="surf">Compare</div>
+    </div>
+    <p class="caption">Sebelum booking, pengguna membandingkan tipe kamar secara berdampingan: harga per malam, kapasitas, dan <b>kebijakan pembatalan</b> (Flexible 10% penalty vs Non-Refundable) tampil eksplisit di setiap baris.</p>
+
+    <div class="frame">
+      <div class="titlebar">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <div class="url">http://localhost:5210/ &nbsp;·&nbsp; Detail Hotel — Ubud Paradise Resort</div>
+      </div>
+      <div class="viewport">
+        <div class="detail-wrap">
+          <div class="panel">
+            <div style="display:flex; gap:14px; align-items:flex-start;">
+              <div class="thumb" style="width:150px; height:96px; border-radius:10px; background:linear-gradient(135deg,#d9f2e6,#b3e4cd); font-size:38px;">🌴</div>
+              <div>
+                <h4 style="font-size:17px;">Ubud Paradise Resort</h4>
+                <div class="loc" style="color:var(--muted); font-size:12.5px;">📍 Jl. Raya Ubud, Bali</div>
+                <div class="rating"><span class="score">8.9</span><small>Luar Biasa · 2.6k ulasan</small></div>
+                <div class="facil"><span>WiFi</span><span>Spa</span><span>Kolam Renang</span><span>Restoran</span></div>
+              </div>
+            </div>
+
+            <h4 style="margin-top:16px;">Pilih tipe kamar</h4>
+
+            <div class="room-row">
+              <div class="room-ico">🛏️</div>
+              <div class="info">
+                <b>Garden Room</b>
+                <small>2 tamu · 1 ranjang double · 32 m²</small>
+                <div style="margin-top:5px;"><span class="pill green">Free cancellation s/d 16 Nov</span></div>
+              </div>
+              <div class="price"><b>Rp 1.200.000</b><small>/malam</small></div>
+              <div class="btn btn-primary btn-sm">Pilih</div>
+            </div>
+
+            <div class="room-row">
+              <div class="room-ico">🏡</div>
+              <div class="info">
+                <b>Private Villa</b>
+                <small>4 tamu · kolam renang pribadi · 90 m²</small>
+                <div style="margin-top:5px;"><span class="pill red">Non-Refundable</span> <span class="pill amber">Sisa 2 kamar</span></div>
+              </div>
+              <div class="price"><b>Rp 2.500.000</b><small>/malam</small></div>
+              <div class="btn btn-primary btn-sm">Pilih</div>
+            </div>
+
+            <div class="room-row">
+              <div class="room-ico">🛏️</div>
+              <div class="info">
+                <b>Deluxe Room</b>
+                <small>2 tamu · 1 ranjang king · 40 m²</small>
+                <div style="margin-top:5px;"><span class="pill green">Free cancellation s/d 16 Nov</span></div>
+              </div>
+              <div class="price"><b>Rp 850.000</b><small>/malam</small></div>
+              <div class="btn btn-soft btn-sm">Pilih</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="panel">
+              <h4>Ringkasan pilihan</h4>
+              <div class="sum-row"><span class="lbl">Hotel</span><span class="val">Ubud Paradise Resort</span></div>
+              <div class="sum-row"><span class="lbl">Kamar</span><span class="val">Garden Room</span></div>
+              <div class="sum-row"><span class="lbl">Periode</span><span class="val">17 Nov — 20 Nov 2026</span></div>
+              <div class="sum-row"><span class="lbl">Durasi</span><span class="val">3 malam</span></div>
+              <div class="sum-row"><span class="lbl">Rp 1.200.000 × 3</span><span class="val">Rp 3.600.000</span></div>
+              <div class="sum-row"><span class="lbl">Pajak &amp; layanan</span><span class="val">Termasuk</span></div>
+              <div class="sum-row total"><span class="lbl">Total</span><span class="val">Rp 3.600.000</span></div>
+              <div class="btn btn-orange" style="width:100%; text-align:center; margin-top:13px;">Lanjut ke Pemesanan</div>
+            </div>
+            <div class="panel" style="margin-top:13px;">
+              <h4>Kebijakan</h4>
+              <p style="font-size:12px; color:var(--muted);">Check-in 14:00 · Check-out 12:00. Pembatalan maksimal H-1 sebelum check-in. Harga dikunci saat booking — bila berubah, sistem menolak dengan <b>PRICE_CHANGED</b>.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= LAYAR 3 : BOOKING + PEMBAYARAN ================= -->
+  <section class="screen">
+    <div class="screen-head">
+      <div class="no">LAYAR 03</div>
+      <h2>Form Tamu &amp; Pembayaran</h2>
+      <div class="surf">Configure</div>
+    </div>
+    <p class="caption">Stepper tiga langkah dengan ringkasan harga yang selalu terlihat. Pembayaran memakai <b>hitung mundur 30 menit</b>; empat metode tersedia (Virtual Account, Kartu Kredit, QRIS, E-Wallet) dengan nomor VA tampil setelah metode dipilih.</p>
+
+    <div class="frame">
+      <div class="titlebar">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <div class="url">http://localhost:5210/ &nbsp;·&nbsp; Pembayaran — BK-20261103-95A0FE</div>
+      </div>
+      <div class="viewport">
+        <div class="stepper">
+          <div class="st done"><div class="n">✓</div><span>Data Tamu</span></div>
+          <div class="bar"></div>
+          <div class="st on"><div class="n">2</div><span>Pembayaran</span></div>
+          <div class="bar"></div>
+          <div class="st"><div class="n">3</div><span>Selesai</span></div>
+        </div>
+
+        <div class="pay-wrap">
+          <div>
+            <div class="countdown">⏳ Batas waktu pembayaran <span class="clock">29:12</span> — booking otomatis kedaluwarsa setelahnya</div>
+
+            <div class="panel">
+              <h4>Metode pembayaran</h4>
+              <div class="pay-methods">
+                <div class="pay-tile sel">
+                  <div class="ico">🏦</div>
+                  <div><b>Virtual Account</b><small>BCA · Mandiri · BNI</small></div>
+                  <div class="radio"></div>
+                </div>
+                <div class="pay-tile">
+                  <div class="ico">💳</div>
+                  <div><b>Kartu Kredit</b><small>Visa · Mastercard</small></div>
+                  <div class="radio"></div>
+                </div>
+                <div class="pay-tile">
+                  <div class="ico">📱</div>
+                  <div><b>QRIS</b><small>Scan dari e-wallet apa pun</small></div>
+                  <div class="radio"></div>
+                </div>
+                <div class="pay-tile">
+                  <div class="ico">👛</div>
+                  <div><b>E-Wallet</b><small>GoPay · OVO · DANA</small></div>
+                  <div class="radio"></div>
+                </div>
+              </div>
+
+              <div class="va-box">
+                <small>Nomor Virtual Account BCA</small>
+                <div class="code">8808 1234 5678 9012</div>
+                <small>Salin nomor di atas dan bayar sesuai total tagihan. Status otomatis terverifikasi via callback.</small>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="panel">
+              <h4>Ringkasan pesanan</h4>
+              <div class="sum-row"><span class="lbl">No. Booking</span><span class="val">BK-20261103-95A0FE</span></div>
+              <div class="sum-row"><span class="lbl">Hotel</span><span class="val">Ubud Paradise Resort</span></div>
+              <div class="sum-row"><span class="lbl">Kamar</span><span class="val">Garden Room</span></div>
+              <div class="sum-row"><span class="lbl">Tamu</span><span class="val">Budi Santoso (2)</span></div>
+              <div class="sum-row"><span class="lbl">17 Nov — 20 Nov</span><span class="val">3 malam</span></div>
+              <div class="sum-row total"><span class="lbl">Total bayar</span><span class="val">Rp 3.600.000</span></div>
+              <div class="btn btn-orange" style="width:100%; text-align:center; margin-top:13px;">Bayar Sekarang</div>
+              <p style="font-size:11px; color:var(--muted); margin-top:9px; text-align:center;">Dengan membayar, Anda menyetujui syarat &amp; ketentuan HotelKu.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="annot">
+      <div class="tag">Status</div>
+      <p>Setelah callback gateway diterima: booking berstatus <b>PAID</b>, invoice <b>INV-…</b> otomatis terbit, dan E-Ticket dikirim. Callback berulang bersifat idempoten (tidak menggandakan invoice); nominal tidak cocok ditolak dengan AMOUNT_MISMATCH.</p>
+    </div>
+  </section>
+
+  <!-- ================= LAYAR 4 : E-TICKET & INVOICE ================= -->
+  <section class="screen">
+    <div class="screen-head">
+      <div class="no">LAYAR 04</div>
+      <h2>E-Ticket &amp; Invoice</h2>
+      <div class="surf">Inspect</div>
+    </div>
+    <p class="caption">Dokumen digital setelah pembayaran berhasil: <b>E-Ticket dengan QR</b> untuk check-in (dapat diverifikasi petugas via menu Verifikasi QR) dan invoice lengkap dengan rincian transaksi. Keduanya bisa diunduh sebagai PDF.</p>
+
+    <div class="frame">
+      <div class="titlebar">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <div class="url">http://localhost:5210/ &nbsp;·&nbsp; E-Ticket — BK-20261103-1833D1</div>
+      </div>
+      <div class="viewport">
+        <div class="ticket-wrap">
+          <div class="ticket">
+            <div class="top">
+              <div><b>E-Ticket HotelKu</b><small>Booking Number BK-20261103-1833D1</small></div>
+              <div style="text-align:right"><b>PAID</b><small>17 Nov 2026</small></div>
+            </div>
+            <div class="qr-row">
+              <div class="qr"></div>
+              <div class="kv" style="flex:1">
+                <div class="k">Hotel</div><div class="v">Ubud Paradise Resort</div>
+                <div class="k">Lokasi</div><div class="v">Jl. Raya Ubud, Bali</div>
+                <div class="k">Kamar</div><div class="v">Garden Room</div>
+                <div class="k">Tamu</div><div class="v">Budi Santoso · 2 tamu</div>
+                <div class="k">Periode</div><div class="v">17 Nov 2026 — 20 Nov 2026</div>
+                <div class="k">Total</div><div class="v">Rp 3.600.000</div>
+              </div>
+            </div>
+            <div class="ok-note">✓ QR valid untuk check-in · Tunjukkan kepada petugas resepsionis</div>
+          </div>
+
+          <div class="panel">
+            <h4>Invoice</h4>
+            <div class="sum-row"><span class="lbl">No. Invoice</span><span class="val">INV-20261103-8D5663</span></div>
+            <div class="sum-row"><span class="lbl">No. Booking</span><span class="val">BK-20261103-1833D1</span></div>
+            <div class="sum-row"><span class="lbl">Pelanggan</span><span class="val">Budi Santoso</span></div>
+            <div class="sum-row"><span class="lbl">Email</span><span class="val">budi@demo.com</span></div>
+            <div class="sum-row"><span class="lbl">Metode</span><span class="val">Virtual Account</span></div>
+            <div class="sum-row"><span class="lbl">Status bayar</span><span class="val" style="color:var(--green); font-weight:700;">SUCCESS</span></div>
+            <div class="sum-row total"><span class="lbl">Total</span><span class="val">Rp 3.600.000</span></div>
+            <div style="display:flex; gap:8px; margin-top:13px;">
+              <div class="btn btn-soft btn-sm" style="flex:1; text-align:center;">⬇ Unduh E-Ticket</div>
+              <div class="btn btn-soft btn-sm" style="flex:1; text-align:center;">⬇ Unduh Invoice</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= LAYAR 5 : BOOKING SAYA + PEMBATALAN ================= -->
+  <section class="screen">
+    <div class="screen-head">
+      <div class="no">LAYAR 05</div>
+      <h2>Booking Saya &amp; Pembatalan</h2>
+      <div class="surf">Operate</div>
+    </div>
+    <p class="caption">Riwayat terkelompok: <b>Inprogress Trip</b> (berjalan) dan <b>Completed Trip</b> (periode berakhir). Sebelum membatalkan, pengguna melihat estimasi penalty dan pengembalian dana — booking Non-Refundable diberi peringatan tegas.</p>
+
+    <div class="frame">
+      <div class="titlebar">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <div class="url">http://localhost:5210/ &nbsp;·&nbsp; Booking Saya</div>
+      </div>
+      <div class="viewport">
+        <div class="tabs">
+          <div class="t on">Inprogress Trip · 2</div>
+          <div class="t">Completed Trip · 1</div>
+        </div>
+
+        <div class="book-row">
+          <div class="th" style="background:linear-gradient(135deg,#d9f2e6,#b3e4cd)">🌴</div>
+          <div class="info">
+            <b>Ubud Paradise Resort</b>
+            <small>🎫 BK-20261103-1833D1 · Garden Room · 📍 Jl. Raya Ubud, Bali</small>
+            <small>📅 17 Nov — 20 Nov 2026 · 👤 Budi Santoso (2 tamu)</small>
+          </div>
+          <div class="acts">
+            <span class="pill green">PAID</span>
+            <div class="btn btn-soft btn-sm">E-Ticket</div>
+            <div class="btn btn-soft btn-sm">Invoice</div>
+            <div class="btn btn-danger btn-sm">Batalkan</div>
+          </div>
+        </div>
+
+        <div class="book-row">
+          <div class="th" style="background:linear-gradient(135deg,#fce6d6,#f7c9a8)">🏔️</div>
+          <div class="info">
+            <b>Bandung Heritage Hotel</b>
+            <small>🎫 BK-20261103-52724E · Standard Room · 📍 Jl. Asia Afrika, Bandung</small>
+            <small>📅 24 Nov — 26 Nov 2026 · 👤 Budi Santoso (2 tamu)</small>
+          </div>
+          <div class="acts">
+            <span class="pill amber">MENUNGGU BAYAR</span>
+            <div class="btn btn-orange btn-sm">Bayar</div>
+          </div>
+        </div>
+
+        <div class="modal-back">
+          <div class="modal">
+            <h4>Batalkan booking BK-20261103-1833D1?</h4>
+            <p>Ubud Paradise Resort · Garden Room · 17–20 Nov 2026</p>
+            <div class="warn-box">
+              ⚠️ <b>Non-Refundable</b> — kamar ini tidak dapat dikembalikan dananya. Pembatalan bersifat final, status berubah menjadi CANCELLED, dan E-Ticket tidak lagi valid untuk check-in.
+            </div>
+            <div class="warn-box" style="background:var(--blue-soft); border-color:#c8def6; color:var(--blue);">
+              💡 Untuk kamar <b>Flexible</b>, estimasi tampil di sini: penalty 10% dan sisa dana dikembalikan setelah disetujui Finance.
+            </div>
+            <div class="foot">
+              <div class="btn btn-ghost btn-sm">Kembali</div>
+              <div class="btn btn-danger btn-sm">Ya, Batalkan</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= LAYAR 6 : REFUND FINANCE ================= -->
+  <section class="screen">
+    <div class="screen-head">
+      <div class="no">LAYAR 06</div>
+      <h2>Panel Refund (Finance)</h2>
+      <div class="surf">Operate</div>
+    </div>
+    <p class="caption">Khusus peran <b>Finance/Admin</b>: antrean pengajuan refund dengan rincian penalty, keputusan approve/reject, eksekusi transfer, serta status gagal dari provider. Customer hanya melihat status miliknya sendiri.</p>
+
+    <div class="frame">
+      <div class="titlebar">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <div class="url">http://localhost:5210/ &nbsp;·&nbsp; Refund — Finance Console</div>
+      </div>
+      <div class="viewport">
+        <div class="app-nav">
+          <div class="logo"><div class="mark">🏨</div> HotelKu</div>
+          <div class="links"><span>Booking Saya</span><span class="active">Refund</span><span>Verifikasi QR</span></div>
+          <div class="right">
+            <div class="user-chip">🛡️ Sari Wijaya · Finance</div>
+          </div>
+        </div>
+
+        <div class="section" style="padding-top:18px;">
+          <div style="display:flex; align-items:baseline; gap:12px; margin-bottom:13px;">
+            <h3 style="margin:0;">Pengajuan refund</h3>
+            <div class="chips" style="margin:0;">
+              <div class="chip sel">Semua</div>
+              <div class="chip">Menunggu · 1</div>
+              <div class="chip">Selesai</div>
+              <div class="chip">Gagal</div>
+            </div>
+          </div>
+
+          <div class="panel" style="padding:0; overflow:hidden;">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>Booking</th><th>Customer</th><th>Total Dibayar</th><th>Penalty</th>
+                  <th>Nilai Refund</th><th>Status</th><th style="width:190px;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><b>BK-20261103-C7C968</b><br><small style="color:var(--muted)">Flexible · 17–20 Nov</small></td>
+                  <td>Budi Santoso</td>
+                  <td>Rp 1.650.000</td>
+                  <td>Rp 165.000</td>
+                  <td><b>Rp 1.485.000</b></td>
+                  <td><span class="pill amber">PENDING_APPROVAL</span></td>
+                  <td><div class="acts">
+                    <div class="btn btn-primary btn-sm">Approve</div>
+                    <div class="btn btn-danger btn-sm">Reject</div>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td><b>BK-20261103-16B8D5</b><br><small style="color:var(--muted)">Flexible · 10–12 Nov</small></td>
+                  <td>Siti Aminah</td>
+                  <td>Rp 2.400.000</td>
+                  <td>Rp 240.000</td>
+                  <td><b>Rp 2.160.000</b></td>
+                  <td><span class="pill blue">APPROVED</span></td>
+                  <td><div class="acts">
+                    <div class="btn btn-primary btn-sm">Execute</div>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td><b>BK-20261103-95A0FE</b><br><small style="color:var(--muted)">Flexible · 20–22 Nov</small></td>
+                  <td>Andi Pratama</td>
+                  <td>Rp 3.300.000</td>
+                  <td>Rp 330.000</td>
+                  <td><b>Rp 2.970.000</b></td>
+                  <td><span class="pill green">COMPLETED</span></td>
+                  <td><small style="color:var(--muted)">Selesai · 3 Nov, 14:02</small></td>
+                </tr>
+                <tr>
+                  <td><b>BK-20261102-0E0820</b><br><small style="color:var(--muted)">Flexible · 24–26 Nov</small></td>
+                  <td>Dewi Lestari</td>
+                  <td>Rp 1.100.000</td>
+                  <td>Rp 110.000</td>
+                  <td><b>Rp 990.000</b></td>
+                  <td><span class="pill red">FAILED</span></td>
+                  <td><div class="acts">
+                    <div class="btn btn-soft btn-sm">Retry</div>
+                    <small style="color:var(--muted)">provider timeout</small>
+                  </div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="annot">
+      <div class="tag">RBAC</div>
+      <p>Finance &amp; Management tidak dapat membuat booking/pembayaran; Customer tidak dapat mengakses panel ini; seluruh keputusan (approve/reject/execute) tercatat di jejak audit lengkap dengan actor dan timestamp.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="doc-foot">
+  <div class="inner">
+    <div>Mockup UI — HotelKu · Hotel Booking Prototype · mengacu D220 TSD &amp; Dokumen UAT Scenario ver 2026</div>
+    <div>Layout desktop-first · responsif &lt; 900px · dibuat dari implementasi aktual aplikasi</div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HotelKu — Pesan Hotel Online</title>
+<style>
+  :root {
+    --blue:#0064d2; --blue2:#1b9fe0; --blue-soft:#e8f2fd;
+    --orange:#f26b22; --orange-dark:#d9530e;
+    --bg:#f5f7fa; --card:#fff; --text:#24292f; --muted:#6b7785;
+    --green:#00875a; --red:#d93025; --amber:#b26a00;
+    --border:#e3e8ee; --radius:12px; --shadow:0 2px 10px rgba(20,40,80,.08);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html { scroll-behavior:smooth; }
+  body { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--text); }
+  a { color:var(--blue); text-decoration:none; }
+  button { font-family:inherit; }
+
+  /* ---------- Header ---------- */
+  header { position:sticky; top:0; z-index:50; background:#fff; border-bottom:1px solid var(--border); }
+  .nav { max-width:1100px; margin:0 auto; padding:12px 20px; display:flex; align-items:center; gap:22px; }
+  .logo { display:flex; align-items:center; gap:8px; font-size:20px; font-weight:800; color:var(--blue); cursor:pointer; }
+  .logo .mark { width:30px; height:30px; background:linear-gradient(135deg,var(--blue),var(--blue2)); border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:15px; }
+  .nav .links { display:flex; gap:4px; }
+  .nav .links button { background:none; border:none; padding:9px 13px; font-size:14px; color:var(--muted); cursor:pointer; border-radius:8px; }
+  .nav .links button:hover { background:var(--blue-soft); color:var(--blue); }
+  .nav .links button.active { color:var(--blue); font-weight:700; background:var(--blue-soft); }
+  .nav .right { margin-left:auto; display:flex; align-items:center; gap:10px; }
+  .user-chip { display:flex; align-items:center; gap:8px; background:var(--blue-soft); padding:6px 12px; border-radius:999px; font-size:13px; color:var(--blue); font-weight:600; }
+  .btn { border:none; border-radius:10px; padding:11px 22px; font-size:14px; font-weight:700; cursor:pointer; transition:.15s; }
+  .btn:disabled { opacity:.55; cursor:not-allowed; }
+  .btn-primary { background:var(--blue); color:#fff; } .btn-primary:hover:not(:disabled) { background:#0053ad; }
+  .btn-orange { background:var(--orange); color:#fff; } .btn-orange:hover:not(:disabled) { background:var(--orange-dark); }
+  .btn-ghost { background:#fff; color:var(--blue); border:1.5px solid var(--blue); }
+  .btn-soft { background:var(--blue-soft); color:var(--blue); }
+  .btn-danger { background:#fdecea; color:var(--red); }
+  .btn-sm { padding:8px 14px; font-size:13px; border-radius:8px; }
+
+  /* ---------- Hero ---------- */
+  .hero { background:linear-gradient(120deg,#0055b8 0%, var(--blue) 45%, var(--blue2) 100%); padding:48px 20px 96px; position:relative; overflow:hidden; }
+  .hero::after { content:""; position:absolute; inset:0; background:
+      radial-gradient(circle at 85% 20%, rgba(255,255,255,.14), transparent 45%),
+      radial-gradient(circle at 10% 90%, rgba(255,255,255,.10), transparent 40%); }
+  .hero-inner { max-width:1100px; margin:0 auto; position:relative; z-index:1; }
+  .hero h1 { color:#fff; font-size:34px; line-height:1.25; max-width:560px; }
+  .hero p { color:#dbeafe; margin-top:10px; font-size:16px; }
+
+  /* ---------- Search card ---------- */
+  .search-card { max-width:1100px; margin:-64px auto 0; background:#fff; border-radius:16px; box-shadow:0 8px 30px rgba(15,40,90,.16); padding:18px 20px 20px; position:relative; z-index:2; }
+  .search-tabs { display:flex; gap:6px; margin-bottom:14px; }
+  .search-tabs span { padding:7px 16px; border-radius:999px; font-size:13px; background:var(--blue-soft); color:var(--blue); font-weight:600; }
+  .search-tabs span.dim { background:#f1f4f8; color:var(--muted); font-weight:500; }
+  .search-grid { display:flex; gap:12px; flex-wrap:wrap; }
+  .field { flex:1; min-width:170px; }
+  .field label { display:block; font-size:11.5px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px; }
+  .field input, .field select { width:100%; padding:12px 13px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; background:#fff; color:var(--text); }
+  .field input:focus, .field select:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(0,100,210,.12); }
+  .search-grid .btn { align-self:stretch; padding:12px 30px; }
+
+  /* ---------- Sections ---------- */
+  .wrap { max-width:1100px; margin:0 auto; padding:0 20px; }
+  section.block { padding:34px 0 8px; }
+  .block-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px; }
+  .block-head h2 { font-size:21px; }
+  .block-head .sub { color:var(--muted); font-size:13.5px; }
+  .chips { display:flex; gap:9px; flex-wrap:wrap; margin:18px 0 4px; }
+  .chip { padding:8px 16px; background:#fff; border:1.5px solid var(--border); border-radius:999px; font-size:13px; cursor:pointer; font-weight:600; color:var(--text); }
+  .chip:hover { border-color:var(--blue); color:var(--blue); }
+
+  /* ---------- Hotel cards ---------- */
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(255px,1fr)); gap:18px; }
+  .hotel-card { background:#fff; border-radius:14px; overflow:hidden; box-shadow:var(--shadow); cursor:pointer; transition:.18s; border:1px solid var(--border); }
+  .hotel-card:hover { transform:translateY(-3px); box-shadow:0 10px 26px rgba(20,40,80,.14); }
+  .thumb { height:150px; display:flex; align-items:center; justify-content:center; font-size:52px; position:relative; }
+  .thumb .city-tag { position:absolute; top:10px; left:10px; background:rgba(255,255,255,.92); color:var(--blue); font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:999px; }
+  .hotel-card .body { padding:14px 15px 16px; }
+  .hotel-card h3 { font-size:15px; line-height:1.35; }
+  .rating { display:inline-flex; align-items:center; gap:5px; margin:7px 0; }
+  .rating .score { background:var(--blue); color:#fff; font-size:12px; font-weight:800; padding:2px 8px; border-radius:7px; }
+  .rating .lbl { font-size:12px; color:var(--muted); }
+  .facilities { font-size:12px; color:var(--muted); min-height:18px; }
+  .price-row { margin-top:10px; display:flex; align-items:flex-end; justify-content:space-between; gap:8px; }
+  .price { color:var(--orange); font-size:18px; font-weight:800; }
+  .price small { color:var(--muted); font-size:11.5px; font-weight:500; }
+
+  /* ---------- Detail ---------- */
+  .detail-hero { height:210px; border-radius:16px; display:flex; align-items:flex-end; padding:22px; font-size:64px; position:relative; overflow:hidden; }
+  .detail-hero h2 { color:#fff; font-size:26px; text-shadow:0 2px 12px rgba(0,0,0,.35); }
+  .room-item { background:#fff; border:1px solid var(--border); border-radius:13px; padding:16px 18px; margin-top:12px; display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; }
+  .room-item .info h4 { font-size:15px; }
+  .room-item .info p { color:var(--muted); font-size:12.5px; margin-top:4px; }
+  .policy-tag { display:inline-block; padding:3px 10px; font-size:11.5px; border-radius:999px; margin-top:7px; }
+  .policy-refundable { background:#e6f4ee; color:var(--green); }
+  .policy-nonref { background:#fdecea; color:var(--red); }
+
+  /* ---------- Steps / summary ---------- */
+  .steps { display:flex; gap:8px; align-items:center; margin:20px 0 6px; flex-wrap:wrap; }
+  .step { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); }
+  .step .n { width:24px; height:24px; border-radius:50%; background:#e6ebf1; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; }
+  .step.active { color:var(--blue); font-weight:700; }
+  .step.active .n { background:var(--blue); color:#fff; }
+  .step.done .n { background:var(--green); color:#fff; }
+  .step-line { width:26px; height:2px; background:var(--border); }
+
+  .panel { background:#fff; border:1px solid var(--border); border-radius:14px; padding:22px; box-shadow:var(--shadow); }
+  .panel h2 { font-size:18px; margin-bottom:4px; }
+  .panel .muted { color:var(--muted); font-size:13px; }
+  .summary-row { display:flex; justify-content:space-between; padding:8px 0; font-size:13.5px; border-bottom:1px dashed var(--border); }
+  .summary-row:last-child { border-bottom:none; }
+  .summary-row .lbl { color:var(--muted); }
+  .summary-row .val { font-weight:600; text-align:right; }
+  .total-row { margin-top:10px; padding-top:12px; border-top:2px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+  .total-row .big { color:var(--orange); font-size:22px; font-weight:800; }
+
+  .pay-methods { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin:12px 0 4px; }
+  .pay-m { border:2px solid var(--border); border-radius:12px; padding:14px 12px; cursor:pointer; text-align:center; transition:.12s; }
+  .pay-m:hover { border-color:var(--blue2); }
+  .pay-m.sel { border-color:var(--blue); background:var(--blue-soft); }
+  .pay-m .ico { font-size:22px; }
+  .pay-m .nm { font-size:13px; font-weight:700; margin-top:5px; }
+
+  /* ---------- Booking history ---------- */
+  .tab-row { display:flex; gap:8px; margin-bottom:16px; }
+  .tab-row button { padding:10px 20px; border-radius:999px; border:1.5px solid var(--border); background:#fff; font-size:13.5px; font-weight:600; cursor:pointer; color:var(--muted); }
+  .tab-row button.active { background:var(--blue); border-color:var(--blue); color:#fff; }
+  .booking-card { background:#fff; border:1px solid var(--border); border-radius:14px; padding:18px 20px; margin-bottom:13px; box-shadow:var(--shadow); }
+  .booking-card .top { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:flex-start; }
+  .booking-card h3 { font-size:15.5px; }
+  .booking-card .meta { color:var(--muted); font-size:12.5px; margin-top:5px; line-height:1.7; }
+  .badge { display:inline-block; padding:4px 12px; border-radius:999px; font-size:11.5px; font-weight:800; letter-spacing:.02em; }
+  .b-PENDING_PAYMENT { background:#fff3e0; color:var(--amber); }
+  .b-PAID { background:#e6f4ee; color:var(--green); }
+  .b-EXPIRED { background:#eef1f4; color:var(--muted); }
+  .b-CANCELLED { background:#fdecea; color:var(--red); }
+  .b-PENDING_APPROVAL { background:#fff3e0; color:var(--amber); }
+  .b-APPROVED { background:var(--blue-soft); color:var(--blue); }
+  .b-REJECTED { background:#fdecea; color:var(--red); }
+  .b-PROCESSING { background:var(--blue-soft); color:var(--blue); }
+  .b-COMPLETED { background:#e6f4ee; color:var(--green); }
+  .b-FAILED { background:#fdecea; color:var(--red); }
+  .actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:13px; }
+  .countdown { background:#fff3e0; color:var(--amber); font-size:12px; font-weight:700; padding:5px 11px; border-radius:8px; }
+  .empty { text-align:center; color:var(--muted); padding:38px 10px; font-size:14px; }
+  .empty .ico { font-size:38px; display:block; margin-bottom:10px; }
+
+  /* ---------- Modal & toast ---------- */
+  .modal-bg { position:fixed; inset:0; background:rgba(15,25,45,.55); display:none; align-items:center; justify-content:center; z-index:100; padding:18px; }
+  .modal-bg.open { display:flex; }
+  .modal { background:#fff; border-radius:16px; width:100%; max-width:430px; padding:24px; max-height:88vh; overflow-y:auto; }
+  .modal h3 { font-size:18px; margin-bottom:6px; }
+  .modal .muted { color:var(--muted); font-size:13px; }
+  .modal .field { margin-top:12px; }
+  .modal .close-x { float:right; background:none; border:none; font-size:19px; cursor:pointer; color:var(--muted); }
+  .modal .qr-box { background:#f4f7fa; border-radius:10px; padding:13px; font-family:Consolas,monospace; font-size:11.5px; word-break:break-all; margin-top:10px; color:#334; line-height:1.6; }
+  #toast { position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(10px); background:#1f2937; color:#fff; padding:12px 20px; border-radius:10px; font-size:13.5px; opacity:0; transition:.25s; z-index:200; max-width:90vw; box-shadow:0 8px 24px rgba(0,0,0,.25); }
+  #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  #toast.err { background:var(--red); }
+
+  /* ---------- Footer ---------- */
+  footer { background:#0f2747; color:#b9c9dd; margin-top:48px; padding:30px 20px 24px; font-size:13px; }
+  footer .fwrap { max-width:1100px; margin:0 auto; display:flex; justify-content:space-between; gap:18px; flex-wrap:wrap; }
+  footer a { color:#8fc2f5; }
+  .hidden { display:none !important; }
+
+  @media (max-width:720px) {
+    .hero h1 { font-size:25px; }
+    .nav .links { display:none; }
+    .search-grid .btn { width:100%; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="logo" onclick="go('home')"><div class="mark">🏨</div>HotelKu</div>
+    <div class="links" id="nav-links">
+      <button data-view="home" class="active">Beranda</button>
+      <button data-view="history">Booking Saya</button>
+      <button data-view="refunds">Refund</button>
+      <button data-view="verify">Verifikasi QR</button>
+    </div>
+    <div class="right">
+      <a href="/apitester.html" style="font-size:13px">API Tester</a>
+      <a href="/swagger" target="_blank" style="font-size:13px">Swagger</a>
+      <div class="user-chip hidden" id="user-chip">👤 <span id="user-name">-</span></div>
+      <button class="btn btn-primary btn-sm hidden" id="btn-logout" onclick="logout()">Keluar</button>
+      <button class="btn btn-primary btn-sm" id="btn-login" onclick="openAuth('login')">Masuk / Daftar</button>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== HOME ===================== -->
+<div id="view-home">
+  <div class="hero">
+    <div class="hero-inner">
+      <h1>Mau nginap di mana? Cari hotelnya di sini.</h1>
+      <p>Pesan hotel mudah — pembayaran aman, e-ticket langsung dikirim.</p>
+    </div>
+  </div>
+
+  <div class="search-card">
+    <div class="search-tabs">
+      <span>🏨 Hotel</span>
+      <span class="dim">Villa</span>
+      <span class="dim">Apartemen</span>
+    </div>
+    <div class="search-grid">
+      <div class="field" style="flex:1.4">
+        <label>Destinasi / Nama Hotel</label>
+        <input id="s-dest" list="cities" value="Jakarta" placeholder="Kota atau nama hotel">
+        <datalist id="cities"><option>Jakarta</option><option>Bali</option><option>Bandung</option></datalist>
+      </div>
+      <div class="field"><label>Check-in</label><input id="s-in" type="date"></div>
+      <div class="field"><label>Check-out</label><input id="s-out" type="date"></div>
+      <div class="field" style="flex:.7"><label>Tamu</label><input id="s-guest" type="number" min="1" value="2"></div>
+      <button class="btn btn-orange" onclick="doSearch()">🔍 Cari Hotel</button>
+    </div>
+    <div class="chips">
+      <span class="muted" style="font-size:12.5px;align-self:center">Populer:</span>
+      <div class="chip" onclick="quickSearch('Jakarta')">📍 Jakarta</div>
+      <div class="chip" onclick="quickSearch('Bali')">🏝️ Bali</div>
+      <div class="chip" onclick="quickSearch('Bandung')">⛰️ Bandung</div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <section class="block">
+      <div class="block-head">
+        <h2>Rekomendasi Hotel untukmu</h2>
+        <span class="sub" id="reco-sub">Pilihan terbaik di destinasi populer</span>
+      </div>
+      <div class="grid" id="reco-grid"><div class="empty"><span class="ico">⏳</span>Memuat hotel…</div></div>
+    </section>
+    <section class="block">
+      <div class="block-head"><h2>Kenapa pesan di HotelKu?</h2></div>
+      <div class="grid">
+        <div class="panel"><div style="font-size:26px">🔒</div><h2 style="margin-top:8px">Pembayaran Aman</h2><p class="muted">VA, Kartu Kredit, QRIS, dan E-Wallet dengan konfirmasi instan.</p></div>
+        <div class="panel"><div style="font-size:26px">🎟️</div><h2 style="margin-top:8px">E-Ticket Instan</h2><p class="muted">QR code e-ticket diterbitkan otomatis setelah pembayaran berhasil.</p></div>
+        <div class="panel"><div style="font-size:26px">↩️</div><h2 style="margin-top:8px">Refund Transparan</h2><p class="muted">Estimasi penalty dan refund dihitung jelas sesuai kebijakan hotel.</p></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ===================== SEARCH RESULTS ===================== -->
+<div id="view-search" class="hidden">
+  <div class="wrap">
+    <div class="steps">
+      <div class="step active"><div class="n">1</div>Pilih Hotel</div><div class="step-line"></div>
+      <div class="step"><div class="n">2</div>Isi Data</div><div class="step-line"></div>
+      <div class="step"><div class="n">3</div>Bayar</div><div class="step-line"></div>
+      <div class="step"><div class="n">4</div>Selesai</div>
+    </div>
+    <section class="block">
+      <div class="block-head">
+        <h2>Hasil Pencarian</h2>
+        <span class="sub" id="search-sub"></span>
+      </div>
+      <div class="grid" id="search-grid"></div>
+    </section>
+  </div>
+</div>
+
+<!-- ===================== HOTEL DETAIL ===================== -->
+<div id="view-detail" class="hidden">
+  <div class="wrap">
+    <div class="steps">
+      <div class="step active"><div class="n">1</div>Pilih Kamar</div><div class="step-line"></div>
+      <div class="step"><div class="n">2</div>Isi Data</div><div class="step-line"></div>
+      <div class="step"><div class="n">3</div>Bayar</div><div class="step-line"></div>
+      <div class="step"><div class="n">4</div>Selesai</div>
+    </div>
+    <section class="block" id="detail-body"></section>
+  </div>
+</div>
+
+<!-- ===================== BOOKING FORM ===================== -->
+<div id="view-booking" class="hidden">
+  <div class="wrap">
+    <div class="steps">
+      <div class="step done"><div class="n">✓</div>Pilih Kamar</div><div class="step-line"></div>
+      <div class="step active"><div class="n">2</div>Isi Data</div><div class="step-line"></div>
+      <div class="step"><div class="n">3</div>Bayar</div><div class="step-line"></div>
+      <div class="step"><div class="n">4</div>Selesai</div>
+    </div>
+    <section class="block" style="max-width:760px">
+      <div class="panel">
+        <h2>Data Tamu</h2>
+        <p class="muted">Pastikan nama sesuai identitas (KTP/Paspor) untuk check-in.</p>
+        <div class="field" style="margin-top:14px">
+          <label>Nama Tamu</label>
+          <input id="b-guest" placeholder="Contoh: Budi Santoso">
+        </div>
+        <div class="field">
+          <label>Jumlah Tamu</label>
+          <input id="b-guestcount" type="number" min="1" value="2">
+        </div>
+        <div style="margin-top:20px" id="book-summary"></div>
+        <button class="btn btn-orange" style="margin-top:18px;width:100%" onclick="createBooking()">Buat Booking & Lanjut Bayar</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ===================== PAYMENT ===================== -->
+<div id="view-payment" class="hidden">
+  <div class="wrap">
+    <div class="steps">
+      <div class="step done"><div class="n">✓</div>Pilih Kamar</div><div class="step-line"></div>
+      <div class="step done"><div class="n">✓</div>Isi Data</div><div class="step-line"></div>
+      <div class="step active"><div class="n">3</div>Bayar</div><div class="step-line"></div>
+      <div class="step"><div class="n">4</div>Selesai</div>
+    </div>
+    <section class="block" id="payment-body" style="max-width:820px"></section>
+  </div>
+</div>
+
+<!-- ===================== HISTORY ===================== -->
+<div id="view-history" class="hidden">
+  <div class="wrap">
+    <section class="block">
+      <div class="block-head"><h2>Booking Saya</h2><span class="sub">Riwayat pesanan hotel kamu</span></div>
+      <div class="tab-row">
+        <button id="tab-inprogress" class="active" onclick="loadHistory('inprogress')">Inprogress Trip</button>
+        <button id="tab-completed" onclick="loadHistory('completed')">Completed Trip</button>
+      </div>
+      <div id="history-list"><div class="empty"><span class="ico">🧳</span>Belum ada data.</div></div>
+    </section>
+  </div>
+</div>
+
+<!-- ===================== REFUNDS ===================== -->
+<div id="view-refunds" class="hidden">
+  <div class="wrap">
+    <section class="block">
+      <div class="block-head"><h2>Refund</h2><span class="sub">Pantau status pengembalian dana</span></div>
+      <div class="panel" style="margin-bottom:14px">
+        <p class="muted">Login sebagai <b>finance@demo.com</b> untuk approve / reject / execute. Customer hanya melihat status refund miliknya.</p>
+      </div>
+      <div id="refund-list"><div class="empty"><span class="ico">↩️</span>Belum ada data.</div></div>
+    </section>
+  </div>
+</div>
+
+<!-- ===================== VERIFY QR ===================== -->
+<div id="view-verify" class="hidden">
+  <div class="wrap">
+    <section class="block" style="max-width:720px">
+      <div class="block-head"><h2>Verifikasi E-Ticket</h2><span class="sub">Untuk petugas hotel — masukkan isi QR code</span></div>
+      <div class="panel">
+        <div class="field">
+          <label>Kode QR (isi)</label>
+          <input id="verify-code" placeholder="BK-YYYYMMDD-XXXXXX.xxxxxxxx…">
+        </div>
+        <button class="btn btn-primary" style="margin-top:12px" onclick="verifyTicket()">Verifikasi</button>
+        <div id="verify-result" style="margin-top:16px"></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<footer>
+  <div class="fwrap">
+    <div>
+      <b style="color:#fff;font-size:15px">🏨 HotelKu</b>
+      <p style="margin-top:6px">Prototype Hotel Booking Platform — demo berbasis TSD ver 2026.</p>
+    </div>
+    <div>
+      <p><a href="/apitester.html">API Tester</a> · <a href="/swagger" target="_blank">Swagger</a></p>
+      <p style="margin-top:6px">Demo: customer@demo.com / finance@demo.com / admin@demo.com</p>
+      <p>Password: <b>Demo1234!</b></p>
+    </div>
+  </div>
+</footer>
+
+<!-- ===================== MODALS ===================== -->
+<div class="modal-bg" id="modal-auth">
+  <div class="modal">
+    <button class="close-x" onclick="closeModal('modal-auth')">✕</button>
+    <div class="tab-row" style="margin-top:14px">
+      <button id="at-login" class="active" onclick="openAuth('login')">Masuk</button>
+      <button id="at-register" onclick="openAuth('register')">Daftar</button>
+    </div>
+    <div id="auth-login">
+      <h3>Selamat datang kembali 👋</h3>
+      <p class="muted">Masuk untuk memesan dan mengelola booking kamu.</p>
+      <div class="field"><label>Email / No. HP</label><input id="login-email" value="customer@demo.com"></div>
+      <div class="field"><label>Password</label><input id="login-pass" type="password" value="Demo1234!"></div>
+      <button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="login()">Masuk</button>
+    </div>
+    <div id="auth-register" class="hidden">
+      <h3>Buat akun baru 🎉</h3>
+      <p class="muted">Gratis, hanya butuh satu menit. Verifikasi OTP dikirim ke email.</p>
+      <div class="field"><label>Email</label><input id="reg-email" placeholder="nama@email.com"></div>
+      <div class="field"><label>Password (min. 8 karakter)</label><input id="reg-pass" type="password"></div>
+      <div class="field"><label>Nama Lengkap</label><input id="reg-name"></div>
+      <div class="field"><label>No. HP (opsional)</label><input id="reg-phone"></div>
+      <button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="register()">Daftar</button>
+      <div id="otp-box" class="hidden" style="margin-top:14px;background:#f4f8fd;border-radius:10px;padding:13px">
+        <p class="muted">Prototype: email belum aktif, jadi kode OTP ditampilkan langsung di sini.</p>
+        <div id="otp-shown" class="qr-box hidden" style="margin:9px 0 0">Kode OTP kamu: <b></b></div>
+        <div class="field"><label>Kode OTP (6 digit)</label><input id="otp-code" placeholder="123456"></div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn btn-primary btn-sm" onclick="verifyOtp()">Verifikasi</button>
+          <button class="btn btn-soft btn-sm" onclick="resendOtp()">Kirim Ulang</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-cancel">
+  <div class="modal">
+    <button class="close-x" onclick="closeModal('modal-cancel')">✕</button>
+    <h3 style="margin-top:12px">Batalkan Booking?</h3>
+    <p class="muted">Berikut estimasi dampak pembatalan sesuai kebijakan hotel:</p>
+    <div id="cancel-preview" style="margin-top:12px"></div>
+    <div class="field"><label>Alasan pembatalan</label><input id="cancel-reason" placeholder="Opsional"></div>
+    <div style="display:flex;gap:9px;margin-top:16px">
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="closeModal('modal-cancel')">Kembali</button>
+      <button class="btn btn-danger btn-sm" style="flex:1" onclick="confirmCancel()">Ya, Batalkan</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-ticket">
+  <div class="modal">
+    <button class="close-x" onclick="closeModal('modal-ticket')">✕</button>
+    <h3 style="margin-top:12px">🎟️ E-Ticket</h3>
+    <p class="muted">Tunjukkan QR code ini saat check-in.</p>
+    <div id="ticket-body"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-invoice">
+  <div class="modal">
+    <button class="close-x" onclick="closeModal('modal-invoice')">✕</button>
+    <h3 style="margin-top:12px">🧾 Invoice</h3>
+    <div id="invoice-body"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ================= State & helpers =================
+const $ = id => document.getElementById(id);
+let token = localStorage.getItem('hk_token') || '';
+let role = localStorage.getItem('hk_role') || '';
+let state = { searchParams: null, hotels: [], detail: null, room: null, booking: null, payment: null, historyGroup: 'inprogress', cancelId: null };
+
+const today = new Date(), d7 = new Date(today.getTime() + 7 * 86400000);
+$('s-in').value = today.toISOString().slice(0, 10);
+$('s-out').value = d7.toISOString().slice(0, 10);
+
+function fmt(n, cur = 'IDR') {
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: cur || 'IDR', maximumFractionDigits: 0 }).format(n);
+}
+function nightsBetween(a, b) { return Math.max(1, Math.round((new Date(b) - new Date(a)) / 86400000)); }
+function esc(s) { return String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+function toast(msg, isErr) {
+  const t = $('toast');
+  t.textContent = msg; t.className = isErr ? 'show err' : 'show';
+  clearTimeout(t._h); t._h = setTimeout(() => t.className = '', 3600);
+}
+
+async function api(method, path, body) {
+  const res = await fetch(path, {
+    method,
+    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || data.status === 'FAILED') throw new Error(data.message || ('HTTP ' + res.status));
+  return data.data;
+}
+
+const CITY_EMOJI = { Jakarta: '🏙️', Bali: '🏝️', Bandung: '⛰️' };
+const CITY_BG = { Jakarta: 'linear-gradient(135deg,#4f86e0,#79b3f2)', Bali: 'linear-gradient(135deg,#0e9f9f,#54d1c5)', Bandung: 'linear-gradient(135deg,#7a5fd6,#b39af5)' };
+function thumbStyle(city) { return CITY_BG[city] || 'linear-gradient(135deg,#5b7fa6,#9db8d6)'; }
+function cityEmoji(city) { return CITY_EMOJI[city] || '🏨'; }
+
+// ================= Navigation =================
+function go(view) {
+  ['home', 'search', 'detail', 'booking', 'payment', 'history', 'refunds', 'verify'].forEach(v => $('view-' + v).classList.add('hidden'));
+  $('view-' + view).classList.remove('hidden');
+  document.querySelectorAll('#nav-links button').forEach(b => b.classList.toggle('active', b.dataset.view === view ||
+    (view === 'search' && b.dataset.view === 'home') ||
+    (['detail', 'booking', 'payment'].includes(view) && b.dataset.view === 'home')));
+  window.scrollTo({ top: 0 });
+  if (view === 'history') loadHistory(state.historyGroup);
+  if (view === 'refunds') loadRefunds();
+}
+document.querySelectorAll('#nav-links button').forEach(b => b.onclick = () => go(b.dataset.view));
+
+// ================= Auth =================
+function setWho() {
+  const loggedIn = !!token;
+  $('user-chip').classList.toggle('hidden', !loggedIn);
+  $('btn-login').classList.toggle('hidden', loggedIn);
+  $('btn-logout').classList.toggle('hidden', !loggedIn);
+  $('user-name').textContent = (localStorage.getItem('hk_email') || 'Pengguna') + (role && role !== 'Customer' ? ' · ' + role : '');
+}
+function openAuth(mode) {
+  $('modal-auth').classList.add('open');
+  $('at-login').classList.toggle('active', mode === 'login');
+  $('at-register').classList.toggle('active', mode === 'register');
+  $('auth-login').classList.toggle('hidden', mode !== 'login');
+  $('auth-register').classList.toggle('hidden', mode !== 'register');
+}
+function closeModal(id) { $(id).classList.remove('open'); }
+
+async function login() {
+  try {
+    const d = await api('POST', '/api/v1/auth/login', {
+      emailOrPhone: $('login-email').value.trim(),
+      password: $('login-pass').value
+    });
+    token = d.access_token; role = d.role || 'Customer';
+    localStorage.setItem('hk_token', token); localStorage.setItem('hk_role', role);
+    localStorage.setItem('hk_email', $('login-email').value.trim());
+    setWho(); closeModal('modal-auth');
+    toast('Login berhasil — selamat datang! 🎉');
+  } catch (e) { toast(e.message, true); }
+}
+async function register() {
+  try {
+    const d = await api('POST', '/api/v1/auth/register', {
+      email: $('reg-email').value.trim(),
+      password: $('reg-pass').value,
+      fullName: $('reg-name').value.trim(),
+      phoneNumber: $('reg-phone').value.trim() || null
+    });
+    showOtp(d.dev_otp);
+    toast('Registrasi berhasil — kode OTP ditampilkan di bawah');
+  } catch (e) { toast(e.message, true); }
+}
+function showOtp(otp) {
+  $('otp-box').classList.remove('hidden');
+  if (otp) {
+    $('otp-shown').classList.remove('hidden');
+    $('otp-shown').querySelector('b').textContent = otp;
+    $('otp-code').value = otp;
+  }
+}
+async function verifyOtp() {
+  try {
+    await api('POST', '/api/v1/auth/verify-otp', { email: $('reg-email').value.trim(), otpCode: $('otp-code').value.trim() });
+    toast('Akun aktif! Silakan masuk.');
+    $('otp-box').classList.add('hidden');
+    $('login-email').value = $('reg-email').value.trim();
+    openAuth('login');
+  } catch (e) { toast(e.message, true); }
+}
+async function resendOtp() {
+  try {
+    const d = await api('POST', '/api/v1/auth/resend-otp', { email: $('reg-email').value.trim() });
+    showOtp(d.dev_otp);
+    toast('OTP baru ditampilkan di bawah');
+  } catch (e) { toast(e.message, true); }
+}
+async function logout() {
+  try { await api('POST', '/api/v1/auth/logout', {}); } catch (e) { /* token tetap dibersihkan */ }
+  token = ''; role = '';
+  localStorage.removeItem('hk_token'); localStorage.removeItem('hk_role'); localStorage.removeItem('hk_email');
+  setWho(); toast('Kamu telah keluar.'); go('home');
+}
+
+// ================= Search =================
+function readSearchParams() {
+  const checkIn = $('s-in').value, checkOut = $('s-out').value;
+  if (!$('s-dest').value.trim()) { toast('Isi destinasi terlebih dahulu', true); return null; }
+  if (!checkIn || !checkOut || new Date(checkOut) <= new Date(checkIn)) { toast('Tanggal check-out harus setelah check-in', true); return null; }
+  return {
+    destination: $('s-dest').value.trim(),
+    checkIn, checkOut,
+    guestCount: Math.max(1, parseInt($('s-guest').value) || 1)
+  };
+}
+function quickSearch(city) { $('s-dest').value = city; doSearch(); }
+
+async function doSearch() {
+  const p = readSearchParams();
+  if (!p) return;
+  state.searchParams = p;
+  go('search');
+  $('search-sub').textContent = `${p.destination} · ${p.checkIn} s/d ${p.checkOut} · ${p.guestCount} tamu`;
+  $('search-grid').innerHTML = '<div class="empty"><span class="ico">⏳</span>Mencari hotel terbaik…</div>';
+  try {
+    const hotels = await api('GET', '/api/v1/hotels/search?' + new URLSearchParams(p));
+    state.hotels = hotels;
+    renderHotels('search-grid', hotels);
+  } catch (e) {
+    $('search-grid').innerHTML = `<div class="empty"><span class="ico">😕</span>${esc(e.message)}</div>`;
+  }
+}
+
+function renderHotels(targetId, hotels) {
+  const el = $(targetId);
+  if (!hotels.length) { el.innerHTML = '<div class="empty"><span class="ico">🔍</span>Tidak ada hotel yang cocok. Coba destinasi lain.</div>'; return; }
+  el.innerHTML = hotels.map(h => {
+    const cheapest = h.rooms && h.rooms.length ? Math.min(...h.rooms.map(r => r.pricePerNight)) : 0;
+    const cur = h.rooms && h.rooms.length ? h.rooms[0].currency : 'IDR';
+    return `
+    <div class="hotel-card" onclick="openDetail('${esc(h.hotelId)}')">
+      <div class="thumb" style="background:${thumbStyle(h.city)}">
+        <span>${cityEmoji(h.city)}</span>
+        <span class="city-tag">${esc(h.city)}</span>
+      </div>
+      <div class="body">
+        <h3>${esc(h.name)}</h3>
+        <div class="rating"><span class="score">★ ${h.rating}</span><span class="lbl">${esc(h.location)}</span></div>
+        <div class="facilities">${esc((h.facilities || []).slice(0, 4).join(' · '))}</div>
+        <div class="price-row">
+          <div class="price">${cheapest ? fmt(cheapest, cur) : '-'}<br><small>per malam, mulai dari</small></div>
+          <button class="btn btn-primary btn-sm">Lihat</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ================= Detail =================
+async function openDetail(hotelId) {
+  const p = state.searchParams || { destination: '', checkIn: $('s-in').value, checkOut: $('s-out').value, guestCount: 2 };
+  go('detail');
+  $('detail-body').innerHTML = '<div class="empty"><span class="ico">⏳</span>Memuat detail hotel…</div>';
+  try {
+    const h = await api('GET', `/api/v1/hotels/${encodeURIComponent(hotelId)}?` + new URLSearchParams({
+      checkIn: p.checkIn, checkOut: p.checkOut, guestCount: p.guestCount
+    }));
+    state.detail = h;
+    const n = nightsBetween(p.checkIn, p.checkOut);
+    $('detail-body').innerHTML = `
+      <div class="detail-hero" style="background:${thumbStyle(h.city)}">
+        <div style="position:absolute;right:26px;top:20px;font-size:70px;opacity:.5">${cityEmoji(h.city)}</div>
+        <div>
+          <h2>${esc(h.name)}</h2>
+          <p style="color:#eaf3ff;font-size:13.5px;margin-top:4px">📍 ${esc(h.location)} · ★ ${h.rating} · ${esc(h.city)}</p>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:16px">
+        <h2>Fasilitas</h2>
+        <div class="chips">${(h.facilities || []).map(f => `<div class="chip" style="cursor:default">✅ ${esc(f)}</div>`).join('') || '<span class="muted">-</span>'}</div>
+      </div>
+      <div class="panel" style="margin-top:14px">
+        <h2>Pilih Kamar</h2>
+        <p class="muted">Periode: ${p.checkIn} s/d ${p.checkOut} (${n} malam) · ${p.guestCount} tamu</p>
+        ${(h.rooms || []).map(r => `
+          <div class="room-item">
+            <div class="info">
+              <h4>${esc(r.name)}</h4>
+              <p>👤 Kapasitas ${r.capacity} tamu · 🛏️ ${r.availableRooms} kamar tersedia</p>
+              <span class="policy-tag ${/refundable/i.test(r.policy || '') && !/non/i.test(r.policy || '') ? 'policy-refundable' : 'policy-nonref'}">
+                ${/non/i.test(r.policy || '') ? '⛔' : '✔️'} ${esc(r.policy || 'Sesuai kebijakan hotel')}
+              </span>
+            </div>
+            <div style="text-align:right">
+              <div class="price">${fmt(r.pricePerNight, r.currency)}<br><small>per malam · total ${fmt(r.pricePerNight * n, r.currency)}</small></div>
+              <button class="btn btn-orange btn-sm" style="margin-top:9px" ${r.availableRooms < 1 ? 'disabled' : ''}
+                onclick='pickRoom(${JSON.stringify({ hotelId: h.hotelId, roomId: r.roomId, hotelName: h.name, roomName: r.name, price: r.pricePerNight, currency: r.currency, nights: n })})'>Pilih Kamar</button>
+            </div>
+          </div>`).join('') || '<p class="muted">Tidak ada kamar tersedia untuk periode ini.</p>'}
+      </div>`;
+  } catch (e) {
+    $('detail-body').innerHTML = `<div class="empty"><span class="ico">😕</span>${esc(e.message)}</div>`;
+  }
+}
+
+function pickRoom(sel) {
+  if (!token) { toast('Silakan masuk terlebih dahulu untuk memesan', true); openAuth('login'); return; }
+  state.room = sel;
+  $('b-guestcount').value = state.searchParams ? state.searchParams.guestCount : 2;
+  $('book-summary').innerHTML = summaryHtml(sel.hotelName, sel.roomName,
+    (state.searchParams || {}).checkIn || $('s-in').value, (state.searchParams || {}).checkOut || $('s-out').value,
+    sel.price, sel.currency);
+  go('booking');
+}
+
+function summaryHtml(hotelName, roomName, checkIn, checkOut, price, currency) {
+  const n = nightsBetween(checkIn, checkOut);
+  return `
+    <div class="panel" style="box-shadow:none">
+      <h2 style="font-size:15.5px">Ringkasan Pesanan</h2>
+      <div class="summary-row"><span class="lbl">Hotel</span><span class="val">${esc(hotelName)}</span></div>
+      <div class="summary-row"><span class="lbl">Tipe Kamar</span><span class="val">${esc(roomName)}</span></div>
+      <div class="summary-row"><span class="lbl">Periode</span><span class="val">${checkIn} s/d ${checkOut} (${n} malam)</span></div>
+      <div class="summary-row"><span class="lbl">Harga / malam</span><span class="val">${fmt(price, currency)}</span></div>
+      <div class="total-row"><b style="font-size:14px">Total</b><span class="big">${fmt(price * n, currency)}</span></div>
+    </div>`;
+}
+
+// ================= Booking =================
+async function createBooking() {
+  const sel = state.room;
+  if (!sel) { toast('Pilih kamar terlebih dahulu', true); return; }
+  const guestName = $('b-guest').value.trim();
+  if (!guestName) { toast('Isi nama tamu terlebih dahulu', true); return; }
+  const p = state.searchParams || { checkIn: $('s-in').value, checkOut: $('s-out').value };
+  try {
+    const d = await api('POST', '/api/v1/bookings', {
+      hotelId: sel.hotelId,
+      roomId: sel.roomId,
+      guestName,
+      checkIn: p.checkIn,
+      checkOut: p.checkOut,
+      guestCount: Math.max(1, parseInt($('b-guestcount').value) || 1),
+      expectedPricePerNight: sel.price
+    });
+    state.booking = d;
+    renderPayment();
+    go('payment');
+    toast('Booking dibuat: ' + d.bookingNumber + ' 🎉');
+  } catch (e) { toast(e.message, true); }
+}
+
+// ================= Payment =================
+const METHODS = [
+  { code: 'VA', name: 'Virtual Account', ico: '🏦' },
+  { code: 'CC', name: 'Kartu Kredit', ico: '💳' },
+  { code: 'QRIS', name: 'QRIS', ico: '📱' },
+  { code: 'EWALLET', name: 'E-Wallet', ico: '👛' }
+];
+let selectedMethod = 'VA';
+
+function renderPayment() {
+  const b = state.booking;
+  if (!b) return;
+  const n = nightsBetween(b.checkIn, b.checkOut);
+  $('payment-body').innerHTML = `
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div>
+          <h2>Selesaikan Pembayaran</h2>
+          <p class="muted">Booking <b>${esc(b.bookingNumber)}</b> · ${esc(b.hotelName)}</p>
+        </div>
+        <div class="countdown" id="pay-countdown">⏳ —</div>
+      </div>
+      <div class="summary-row"><span class="lbl">Tipe Kamar</span><span class="val">${esc(b.roomName)}</span></div>
+      <div class="summary-row"><span class="lbl">Tamu</span><span class="val">${esc(b.guestName)} · ${b.guestCount} tamu</span></div>
+      <div class="summary-row"><span class="lbl">Periode</span><span class="val">${b.checkIn} s/d ${b.checkOut} (${n} malam)</span></div>
+      <div class="total-row"><b style="font-size:14px">Total Pembayaran</b><span class="big">${fmt(b.totalAmount, b.currency)}</span></div>
+    </div>
+    <div class="panel" style="margin-top:14px">
+      <h2>Pilih Metode Pembayaran</h2>
+      <div class="pay-methods">
+        ${METHODS.map(m => `
+          <div class="pay-m ${m.code === selectedMethod ? 'sel' : ''}" onclick="selectMethod('${m.code}')">
+            <div class="ico">${m.ico}</div><div class="nm">${m.name}</div>
+          </div>`).join('')}
+      </div>
+      <button class="btn btn-orange" style="width:100%;margin-top:16px" id="btn-pay" onclick="pay()">Bayar Sekarang</button>
+    </div>
+    <div class="panel hidden" id="pay-instructions" style="margin-top:14px"></div>`;
+  startCountdown(b.expiresAt);
+}
+
+function selectMethod(code) {
+  selectedMethod = code;
+  document.querySelectorAll('.pay-m').forEach(el => el.classList.remove('sel'));
+  const idx = METHODS.findIndex(m => m.code === code);
+  if (idx >= 0) document.querySelectorAll('.pay-m')[idx].classList.add('sel');
+}
+
+let countdownTimer = null;
+function startCountdown(expiresAt) {
+  clearInterval(countdownTimer);
+  const tick = () => {
+    const el = $('pay-countdown');
+    if (!el) { clearInterval(countdownTimer); return; }
+    const left = Math.round((new Date(expiresAt) - new Date()) / 1000);
+    if (left <= 0) { el.textContent = '⛔ Booking kedaluwarsa'; clearInterval(countdownTimer); return; }
+    const m = String(Math.floor(left / 60)).padStart(2, '0'), s = String(left % 60).padStart(2, '0');
+    el.textContent = `⏳ Bayar dalam ${m}:${s}`;
+  };
+  tick(); countdownTimer = setInterval(tick, 1000);
+}
+
+async function pay() {
+  const b = state.booking;
+  if (!b) return;
+  try {
+    const p = await api('POST', '/api/v1/payments', { bookingId: b.bookingId, method: selectedMethod });
+    state.payment = p;
+    const box = $('pay-instructions');
+    box.classList.remove('hidden');
+    box.innerHTML = `
+      <h2>Instruksi Pembayaran</h2>
+      <p class="muted">Referensi: <b>${esc(p.paymentReference)}</b> · ${fmt(p.amount, p.currency)}</p>
+      <div class="qr-box">${esc(p.instructions || 'Ikuti instruksi dari penyedia pembayaran.')}</div>
+      <p class="muted" style="margin-top:12px">Prototype: simulasi callback dari Payment Gateway untuk melanjutkan alur.</p>
+      <div class="actions">
+        <button class="btn btn-primary btn-sm" onclick="simulate('SUCCESS')">✅ Simulasikan Pembayaran Berhasil</button>
+        <button class="btn btn-danger btn-sm" onclick="simulate('FAILED')">❌ Simulasikan Gagal</button>
+      </div>`;
+    box.scrollIntoView({ behavior: 'smooth' });
+  } catch (e) { toast(e.message, true); }
+}
+
+async function simulate(status) {
+  const p = state.payment;
+  if (!p) return;
+  try {
+    await api('POST', `/api/v1/payments/${p.paymentId}/simulate-callback?status=${status}`);
+    if (status === 'SUCCESS') {
+      toast('Pembayaran sukses! Invoice & e-ticket diterbitkan 🎉');
+      clearInterval(countdownTimer);
+      state.historyGroup = 'inprogress';
+      go('history');
+    } else {
+      toast('Pembayaran gagal — silakan coba metode lain', true);
+    }
+  } catch (e) { toast(e.message, true); }
+}
+
+// ================= History =================
+async function loadHistory(group) {
+  state.historyGroup = group;
+  $('tab-inprogress').classList.toggle('active', group === 'inprogress');
+  $('tab-completed').classList.toggle('active', group === 'completed');
+  const el = $('history-list');
+  el.innerHTML = '<div class="empty"><span class="ico">⏳</span>Memuat…</div>';
+  if (!token) {
+    el.innerHTML = '<div class="empty"><span class="ico">🔐</span>Silakan <a href="#" onclick="openAuth(\'login\');return false">masuk</a> untuk melihat booking kamu.</div>';
+    return;
+  }
+  try {
+    const d = await api('GET', `/api/v1/bookings/history?group=${group}&page=1&size=50`);
+    if (!d.items.length) {
+      el.innerHTML = `<div class="empty"><span class="ico">🧳</span>${group === 'inprogress' ? 'Belum ada perjalanan berjalan. Yuk, cari hotel!' : 'Riwayat booking belum tersedia.'}</div>`;
+      return;
+    }
+    el.innerHTML = d.items.map(b => `
+      <div class="booking-card">
+        <div class="top">
+          <div>
+            <h3>${esc(b.hotelName)}</h3>
+            <div class="meta">
+              🎫 <b>${esc(b.bookingNumber)}</b> · ${esc(b.roomName)}<br>
+              📍 ${esc(b.hotelLocation || '-')}<br>
+              📅 ${b.checkIn} s/d ${b.checkOut} · 👤 ${esc(b.guestName)} (${b.guestCount} tamu)
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div class="price" style="font-size:16px">${fmt(b.totalAmount, b.currency)}</div>
+            <div style="margin-top:7px"><span class="badge b-${b.status}">${b.status}</span></div>
+          </div>
+        </div>
+        <div class="actions">${bookingActions(b)}</div>
+      </div>`).join('');
+  } catch (e) {
+    el.innerHTML = `<div class="empty"><span class="ico">😕</span>${esc(e.message)}</div>`;
+  }
+}
+
+function bookingActions(b) {
+  const a = [];
+  if (b.status === 'PENDING_PAYMENT') {
+    a.push(`<button class="btn btn-orange btn-sm" onclick="goPay('${b.bookingId}')">💳 Bayar Sekarang</button>`);
+  }
+  if (b.status === 'PAID') {
+    a.push(`<button class="btn btn-primary btn-sm" onclick="showTicket('${b.bookingId}')">🎟️ E-Ticket</button>`);
+    a.push(`<button class="btn btn-soft btn-sm" onclick="showInvoice('${b.bookingId}')">🧾 Invoice</button>`);
+    a.push(`<button class="btn btn-danger btn-sm" onclick="openCancel('${b.bookingId}')">Batalkan</button>`);
+  }
+  return a.join('') || '<span class="muted" style="font-size:12.5px">Tidak ada aksi</span>';
+}
+
+async function goPay(bookingId) {
+  try {
+    const b = await api('GET', `/api/v1/bookings/${bookingId}`);
+    state.booking = b;
+    selectedMethod = 'VA';
+    renderPayment();
+    go('payment');
+  } catch (e) { toast(e.message, true); }
+}
+
+// ================= Cancel =================
+async function openCancel(bookingId) {
+  state.cancelId = bookingId;
+  try {
+    const p = await api('GET', `/api/v1/bookings/${bookingId}/cancellation-preview`);
+    $('cancel-preview').innerHTML = `
+      <div class="panel" style="box-shadow:none;background:#f8fafc">
+        <div class="summary-row"><span class="lbl">Kebijakan</span><span class="val">${esc(p.policy)}</span></div>
+        <div class="summary-row"><span class="lbl">Refundable</span><span class="val">${p.refundable ? '✅ Ya' : '⛔ Tidak'}</span></div>
+        <div class="summary-row"><span class="lbl">Total dibayar</span><span class="val">${fmt(p.totalPaid)}</span></div>
+        <div class="summary-row"><span class="lbl">Penalty (${Math.round(p.penaltyRate * 100)}%)</span><span class="val" style="color:var(--red)">- ${fmt(p.estimatedPenalty)}</span></div>
+        <div class="total-row"><b style="font-size:14px">Estimasi Refund</b><span class="big">${fmt(p.estimatedRefund)}</span></div>
+        <p class="muted" style="margin-top:9px">${esc(p.notes || '')}</p>
+      </div>`;
+    $('cancel-reason').value = '';
+    $('modal-cancel').classList.add('open');
+  } catch (e) { toast(e.message, true); }
+}
+
+async function confirmCancel() {
+  try {
+    await api('POST', `/api/v1/bookings/${state.cancelId}/cancel`, { reason: $('cancel-reason').value.trim() || '-' });
+    closeModal('modal-cancel');
+    toast('Booking berhasil dibatalkan.');
+    loadHistory(state.historyGroup);
+  } catch (e) { toast(e.message, true); }
+}
+
+// ================= E-Ticket & Invoice =================
+async function showTicket(bookingId) {
+  try {
+    const t = await api('POST', '/api/v1/etickets/reissue', { bookingId });
+    $('ticket-body').innerHTML = `
+      <div class="summary-row"><span class="lbl">No. Booking</span><span class="val">${esc(t.bookingNumber)}</span></div>
+      <div class="summary-row"><span class="lbl">Hotel</span><span class="val">${esc(t.hotelName)}</span></div>
+      <div class="summary-row"><span class="lbl">Lokasi</span><span class="val">${esc(t.hotelLocation || '-')}</span></div>
+      <div class="summary-row"><span class="lbl">Kamar</span><span class="val">${esc(t.roomName)}</span></div>
+      <div class="summary-row"><span class="lbl">Tamu</span><span class="val">${esc(t.guestName)}</span></div>
+      <div class="summary-row"><span class="lbl">Periode</span><span class="val">${t.checkIn} s/d ${t.checkOut}</span></div>
+      <div class="total-row"><b style="font-size:14px">Total</b><span class="big">${fmt(t.totalAmount, t.currency)}</span></div>
+      <div class="qr-box">🎫 QR Code (isi):<br><b>${esc(t.qrCode)}</b></div>
+      <div class="summary-row" style="margin-top:12px"><span class="lbl">Referensi PDF</span><span class="val">${esc(t.pdfReference)}</span></div>
+      <div class="summary-row"><span class="lbl">Diterbitkan</span><span class="val">${new Date(t.issuedAt).toLocaleString('id-ID')}</span></div>
+      <p class="muted" style="margin-top:10px">E-Ticket juga dikirim ke email terdaftar.</p>`;
+    $('modal-ticket').classList.add('open');
+  } catch (e) { toast(e.message, true); }
+}
+
+async function showInvoice(bookingId) {
+  try {
+    const inv = await api('GET', `/api/v1/bookings/${bookingId}/invoice`);
+    $('invoice-body').innerHTML = `
+      <div class="summary-row"><span class="lbl">No. Invoice</span><span class="val">${esc(inv.invoiceNumber)}</span></div>
+      <div class="summary-row"><span class="lbl">No. Booking</span><span class="val">${esc(inv.bookingNumber)}</span></div>
+      <div class="summary-row"><span class="lbl">Customer</span><span class="val">${esc(inv.customerName)}<br><span class="muted">${esc(inv.customerEmail)}</span></span></div>
+      <div class="summary-row"><span class="lbl">Metode Pembayaran</span><span class="val">${esc(inv.paymentMethod)}</span></div>
+      <div class="summary-row"><span class="lbl">Status Pembayaran</span><span class="val"><span class="badge b-PAID">${esc(inv.paymentStatus)}</span></span></div>
+      <div class="summary-row"><span class="lbl">Diterbitkan</span><span class="val">${new Date(inv.issuedAt).toLocaleString('id-ID')}</span></div>
+      <div class="total-row"><b style="font-size:14px">Total</b><span class="big">${fmt(inv.totalAmount, inv.currency)}</span></div>`;
+    $('modal-invoice').classList.add('open');
+  } catch (e) { toast(e.message, true); }
+}
+
+// ================= Refunds =================
+async function loadRefunds() {
+  const el = $('refund-list');
+  el.innerHTML = '<div class="empty"><span class="ico">⏳</span>Memuat…</div>';
+  if (!token) {
+    el.innerHTML = '<div class="empty"><span class="ico">🔐</span>Silakan <a href="#" onclick="openAuth(\'login\');return false">masuk</a> untuk melihat refund.</div>';
+    return;
+  }
+  try {
+    const items = await api('GET', '/api/v1/refunds');
+    if (!items.length) {
+      el.innerHTML = '<div class="empty"><span class="ico">↩️</span>Belum ada pengajuan refund.</div>';
+      return;
+    }
+    el.innerHTML = items.map(r => `
+      <div class="booking-card">
+        <div class="top">
+          <div>
+            <h3>Refund ${esc(r.refundId.slice(0, 8))}…</h3>
+            <div class="meta">
+              🎫 Booking ${esc(r.bookingId.slice(0, 8))}… · Pembayaran: ${esc(r.paymentReference || '-')}<br>
+              💸 Penalty: ${fmt(r.penaltyAmount, r.currency)} · Dibuat: ${new Date(r.createdAt).toLocaleString('id-ID')}
+              ${r.reason ? `<br>📝 Alasan: ${esc(r.reason)}` : ''}
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div class="price" style="font-size:16px">${fmt(r.refundAmount, r.currency)}</div>
+            <div style="margin-top:7px"><span class="badge b-${r.status}">${r.status}</span></div>
+          </div>
+        </div>
+        <div class="actions">${refundActions(r)}</div>
+      </div>`).join('');
+  } catch (e) {
+    el.innerHTML = `<div class="empty"><span class="ico">😕</span>${esc(e.message)}</div>`;
+  }
+}
+
+function refundActions(r) {
+  if (role === 'Customer') return '<span class="muted" style="font-size:12.5px">Menunggu proses Finance</span>';
+  const a = [];
+  if (r.status === 'PENDING_APPROVAL') {
+    a.push(`<button class="btn btn-primary btn-sm" onclick="refundDo('${r.refundId}','approve')">✅ Approve</button>`);
+    a.push(`<button class="btn btn-danger btn-sm" onclick="refundDo('${r.refundId}','reject')">Reject</button>`);
+  } else if (r.status === 'APPROVED') {
+    a.push(`<button class="btn btn-orange btn-sm" onclick="refundDo('${r.refundId}','execute')">▶️ Execute</button>`);
+    a.push(`<button class="btn btn-danger btn-sm" onclick="refundDo('${r.refundId}','execute','FAILED')">Simulasi Gagal</button>`);
+  }
+  return a.join('') || '<span class="muted" style="font-size:12.5px">Tidak ada aksi</span>';
+}
+
+async function refundDo(id, action, simulate) {
+  try {
+    let body;
+    if (action === 'reject') {
+      const reason = prompt('Alasan penolakan:') || '';
+      if (!reason) { toast('Alasan wajib diisi', true); return; }
+      body = { reason };
+    }
+    const qs = simulate ? `?simulate=${simulate}` : '';
+    await api('POST', `/api/v1/refunds/${id}/${action}${qs}`, body || {});
+    toast('Refund ' + (action === 'approve' ? 'disetujui' : action === 'reject' ? 'ditolak' : simulate ? 'gagal diproses provider (tercatat)' : 'dieksekusi') + '.');
+    loadRefunds();
+  } catch (e) { toast(e.message, true); }
+}
+
+// ================= Verify QR =================
+async function verifyTicket() {
+  const code = $('verify-code').value.trim();
+  const el = $('verify-result');
+  if (!code) { toast('Masukkan kode QR terlebih dahulu', true); return; }
+  try {
+    const d = await api('GET', '/api/v1/etickets/verify?code=' + encodeURIComponent(code));
+    el.innerHTML = `
+      <div class="panel" style="box-shadow:none;background:${d.validForCheckIn ? '#e6f4ee' : '#fdecea'}">
+        <h2 style="font-size:16px">${d.validForCheckIn ? '✅ E-Ticket VALID untuk check-in' : '⛔ TIDAK valid untuk check-in'}</h2>
+        <div class="summary-row"><span class="lbl">No. Booking</span><span class="val">${esc(d.bookingNumber)}</span></div>
+        <div class="summary-row"><span class="lbl">Hotel</span><span class="val">${esc(d.hotelName)}</span></div>
+        <div class="summary-row"><span class="lbl">Tamu</span><span class="val">${esc(d.guestName)}</span></div>
+        <div class="summary-row"><span class="lbl">Periode</span><span class="val">${d.checkIn} s/d ${d.checkOut}</span></div>
+        <div class="summary-row"><span class="lbl">Status Booking</span><span class="val"><span class="badge b-${d.bookingStatus}">${esc(d.bookingStatus)}</span></span></div>
+      </div>`;
+  } catch (e) {
+    el.innerHTML = `<div class="panel" style="box-shadow:none;background:#fdecea"><h2 style="font-size:16px">⛔ Kode tidak dikenal</h2><p class="muted">${esc(e.message)}</p></div>`;
+  }
+}
+
+// ================= Init =================
+(async function init() {
+  setWho();
+  try {
+    const hotels = await api('GET', '/api/v1/hotels/search?' + new URLSearchParams({
+      destination: 'Jakarta', checkIn: $('s-in').value, checkOut: $('s-out').value, guestCount: 2
+    }));
+    renderHotels('reco-grid', hotels.slice(0, 3));
+  } catch {
+    $('reco-grid').innerHTML = '<div class="empty"><span class="ico">😕</span>Gagal memuat rekomendasi. Pastikan API berjalan.</div>';
+  }
+})();
+</script>
+</body>
+</html>

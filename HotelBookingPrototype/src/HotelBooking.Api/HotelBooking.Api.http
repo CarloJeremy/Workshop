@@ -1,0 +1,88 @@
+### Hotel Booking Prototype API — contoh pemanggilan (VS 2022: buka tab .http, klik "Send Request")
+### Base URL: http://localhost:5210
+
+### 1. Registrasi (OTP dikirim ke console/log)
+POST http://localhost:5210/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "budi@example.com",
+  "password": "Password123!",
+  "fullName": "Budi Santoso",
+  "phoneNumber": "081234567890"
+}
+
+### 2. Verifikasi OTP (ambil OTP dari console aplikasi)
+POST http://localhost:5210/api/v1/auth/verify-otp
+Content-Type: application/json
+
+{
+  "email": "budi@example.com",
+  "otpCode": "123456"
+}
+
+### 3. Login (akun demo: customer@demo.com / Demo1234!)
+POST http://localhost:5210/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "emailOrPhone": "customer@demo.com",
+  "password": "Demo1234!"
+}
+
+### 4. Cari hotel
+GET http://localhost:5210/api/v1/hotels/search?destination=Jakarta&checkIn=2026-12-01&checkOut=2026-12-03&guestCount=2
+
+### 5. Buat booking (ganti {{token}} dengan access_token dari login)
+POST http://localhost:5210/api/v1/bookings
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "hotelId": "HTL-JKT-001",
+  "roomId": "RM-JKT-STD",
+  "guestName": "Budi Santoso",
+  "checkIn": "2026-12-01",
+  "checkOut": "2026-12-03",
+  "guestCount": 2
+}
+
+### 6. Buat pembayaran (ganti bookingId)
+POST http://localhost:5210/api/v1/payments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "bookingId": "00000000-0000-0000-0000-000000000000",
+  "method": "VA"
+}
+
+### 7. Simulasikan callback sukses dari Payment Gateway (ganti paymentId)
+POST http://localhost:5210/api/v1/payments/00000000-0000-0000-0000-000000000000/simulate-callback?status=SUCCESS
+Authorization: Bearer {{token}}
+
+### 8. Riwayat booking
+GET http://localhost:5210/api/v1/bookings/history?group=inprogress
+Authorization: Bearer {{token}}
+
+### 9. Preview pembatalan (ganti bookingId)
+GET http://localhost:5210/api/v1/bookings/00000000-0000-0000-0000-000000000000/cancellation-preview
+Authorization: Bearer {{token}}
+
+### 10. Batalkan booking (ganti bookingId)
+POST http://localhost:5210/api/v1/bookings/00000000-0000-0000-0000-000000000000/cancel
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "reason": "Berubah rencana" }
+
+### 11. Approval refund oleh Finance (login finance@demo.com / Demo1234!)
+POST http://localhost:5210/api/v1/refunds/00000000-0000-0000-0000-000000000000/approve
+Authorization: Bearer {{financeToken}}
+
+### 12. Eksekusi refund
+POST http://localhost:5210/api/v1/refunds/00000000-0000-0000-0000-000000000000/execute
+Authorization: Bearer {{financeToken}}
+
+### 13. Verifikasi QR E-Ticket (code dari response callback / console)
+GET http://localhost:5210/api/v1/etickets/verify?code=BOOKINGNUMBER.token

@@ -1,0 +1,261 @@
+{
+ "results": [
+  {
+   "id": "UAT-TKT-01",
+   "module": "MOD-06",
+   "title": "E-Ticket dibuat dan dikirim via email setelah pembayaran Paid",
+   "priority": "Critical",
+   "result": "Pass",
+   "note": "E-Ticket BK-20261103-1833D1 lengkap (hotel/lokasi/kamar/tamu/periode/total/QR) + email tercatat"
+  },
+  {
+   "id": "UAT-TKT-02",
+   "module": "MOD-06",
+   "title": "QR Code mengidentifikasi booking yang benar",
+   "priority": "Critical",
+   "result": "Pass",
+   "note": "QR mengidentifikasi booking yang benar; QR rusak ditolak; QR antar booking unik"
+  },
+  {
+   "id": "UAT-TKT-03",
+   "module": "MOD-06",
+   "title": "E-Ticket tidak diterbitkan untuk booking belum dibayar",
+   "priority": "High",
+   "result": "Pass",
+   "note": "e-ticket ditolak untuk booking Pending Payment (422)"
+  },
+  {
+   "id": "UAT-TKT-04",
+   "module": "MOD-06",
+   "title": "Pengiriman ulang E-Ticket (reissue)",
+   "priority": "Medium",
+   "result": "Pass",
+   "note": "reissue mengirim e-ticket yang identik (tanpa duplikasi)"
+  },
+  {
+   "id": "UAT-TKT-05",
+   "module": "MOD-06",
+   "title": "Kegagalan pengiriman email E-Ticket dicatat",
+   "priority": "High",
+   "result": "Pass",
+   "note": "kegagalan email tercatat FAILED (retry 3x terjadwal); e-ticket tetap bisa reissue"
+  },
+  {
+   "id": "UAT-TKT-06",
+   "module": "MOD-06",
+   "title": "Status booking tampil saat QR discan setelah pembatalan",
+   "priority": "Medium",
+   "result": "Pass",
+   "note": "scan QR booking yang dibatalkan -> status CANCELLED tampil, tidak valid untuk check-in"
+  },
+  {
+   "id": "UAT-HST-01",
+   "module": "MOD-07",
+   "title": "Menampilkan riwayat booking milik Customer yang login",
+   "priority": "Critical",
+   "result": "Pass",
+   "note": "2 booking milik A tampil lengkap dgn lokasi; data B tidak ikut"
+  },
+  {
+   "id": "UAT-HST-02",
+   "module": "MOD-07",
+   "title": "Pengelompokan Inprogress Trip dan Completed Trip",
+   "priority": "High",
+   "result": "Pass",
+   "note": "Inprogress hanya berisi PAID berjalan (Pending/Expired/Cancelled tidak tampil); Completed Trip untuk periode berakhir (butuh data berumur untuk isinya)"
+  },
+  {
+   "id": "UAT-HST-03",
+   "module": "MOD-07",
+   "title": "Customer tidak dapat melihat booking Customer lain",
+   "priority": "Critical",
+   "result": "Pass",
+   "note": "akses detail booking Customer lain ditolak (403)"
+  },
+  {
+   "id": "UAT-HST-04",
+   "module": "MOD-07",
+   "title": "Empty state riwayat booking",
+   "priority": "Medium",
+   "result": "Pass",
+   "note": "empty state: list kosong dengan pesan 'riwayat belum tersedia' di UI"
+  },
+  {
+   "id": "UAT-CXL-01",
+   "module": "MOD-08",
+   "title": "Preview ketentuan pembatalan sebelum konfirmasi",
+   "priority": "High",
+   "result": "Pass",
+   "note": "preview tampil: policy Flexible, penalty 165000, estimasi refund 1485000"
+  },
+  {
+   "id": "UAT-CXL-02",
+   "module": "MOD-08",
+   "title": "Pembatalan booking Paid yang eligible refund",
+   "priority": "Critical",
+   "result": "Pass",
+   "note": "booking Cancelled + pengajuan refund PENDING_APPROVAL dibuat (cancellation & refund terpisah)"
+  },
+  {
+   "id": "UAT-CXL-03",
+   "module": "MOD-08",
+   "title": "Pembatalan booking Paid yang tidak eligible refund",
+   "priority": "High",
+   "result": "Pass",
+   "note": "non-refundable: pembatalan diproses, diinformasikan tanpa refund, tidak ada record refund"
+  },
+  {
+   "id": "UAT-CXL-04",
+   "module": "MOD-08",
+   "title": "Pembatalan ditolak \u2014 booking tidak memenuhi policy",
+   "priority": "High",
+   "result": "Pass",
+   "note": "melewati batas waktu pembatalan -> ditolak, status booking tidak berubah"
+  },
+  {
+   "id": "UAT-CXL-05",
+   "module": "MOD-08",
+   "title": "Pembatalan ditolak untuk booking Pending Payment / Expired / Cancelled",
+   "priority": "High",
+   "result": "Pass",
+   "note": "pembatalan ditolak untuk booking Pending Payment (mekanisme hanya untuk booking berbayar)"
+  },
+  {
+   "id": "UAT-CXL-06",
+   "module": "MOD-08",
+   "title": "Pembatalan hanya untuk booking milik sendiri",
+   "priority": "Critical",
+   "result": "Pass",
+   "note": "A tidak dapat membatalkan booking B (403, data B tidak berubah)"
+  },
+  {
+   "id": "UAT-CXL-07",
+   "module": "MOD-08",
+   "title": "Pembatalan tidak dapat diproses berulang (idempotent)",
+   "priority": "Critical",
+   "result": "Pass",
+   "note": "pembatalan berulang ditolak; hanya 1 record cancellation & refund"
+  },
+  {
+   "id": "UAT-RFD-01",
+   "module": "MOD-09",
+   "title": "Perhitungan penalty dan refund amount sesuai policy",
+   "priority": "Critical",
+   "result": "Pass",
+   "note": "penalty 10% = 165000; refund = 1485000 (<= total paid)"
+  },
+  {
+   "id": "UAT-RFD-02",
+   "module": "MOD-09",
+   "title": "Pengajuan refund berstatus Pending Approval menunggu Finance",
+   "priority": "High",
+   "result": "Pass",
+   "note": "PENDING_APPROVAL dengan rincian lengkap; belum ada dana yang ditransfer"
+  },
+  {
+   "id": "UAT-RFD-03",
+   "module": "MOD-09",
+   "title": "Finance menyetujui refund hingga dana dikembalikan",
+   "priority": "Critical",
+   "result": "Pass",
+   "note": "APPROVED -> Processing -> COMPLETED; waktu pemrosesan tercatat; Customer melihat status akhir"
+  },
+  {
+   "id": "UAT-RFD-04",
+   "module": "MOD-09",
+   "title": "Finance menolak refund",
+   "priority": "Critical",
+   "result": "Pass",
+   "note": "ditolak Finance: status REJECTED + alasan tercatat, Customer melihat, tanpa transfer dana"
+  },
+  {
+   "id": "UAT-RFD-05",
+   "module": "MOD-09",
+   "title": "Refund tidak dapat diproses untuk pembayaran yang tidak berhasil",
+   "priority": "High",
+   "result": "Pass",
+   "note": "refund tidak dapat dibuat untuk pembayaran tidak berhasil"
+  },
+  {
+   "id": "UAT-RFD-06",
+   "module": "MOD-09",
+   "title": "Refund tidak dapat diproses ganda",
+   "priority": "Critical",
+   "result": "Pass",
+   "note": "proses berulang ditolak; hanya satu refund per pembatalan/pembayaran"
+  },
+  {
+   "id": "UAT-RFD-07",
+   "module": "MOD-09",
+   "title": "Kegagalan proses refund dari provider tercatat (Failed)",
+   "priority": "High",
+   "result": "Pass",
+   "note": "provider refund gagal -> status FAILED (bukan Completed), detail tercatat untuk tindak lanjut"
+  },
+  {
+   "id": "UAT-RFD-08",
+   "module": "MOD-09",
+   "title": "Akses data refund sesuai peran (pemilik booking / Finance)",
+   "priority": "High",
+   "result": "Pass",
+   "note": "pemilik & Finance dapat melihat; Customer lain ditolak (403)"
+  },
+  {
+   "id": "UAT-RBAC-01",
+   "module": "LINTAS",
+   "title": "Hak akses sesuai RBAC matrix per peran",
+   "priority": "Critical",
+   "result": "Pass",
+   "note": "Finance/Management ditolak dari booking & payment; Admin/TC dapat; Finance kelola refund; Management monitoring"
+  },
+  {
+   "id": "UAT-SEC-01",
+   "module": "LINTAS",
+   "title": "Akses data antar Customer terisolasi",
+   "priority": "Critical",
+   "result": "Pass",
+   "note": "seluruh akses data antar Customer ditolak (403) untuk booking/payment/invoice/e-ticket"
+  },
+  {
+   "id": "UAT-SEC-02",
+   "module": "LINTAS",
+   "title": "Data sensitif tidak terekspos di UI dan email",
+   "priority": "High",
+   "result": "Pass",
+   "note": "password tidak pernah tampil/dikirim; tanpa penyimpanan data kartu; log ter-mask"
+  },
+  {
+   "id": "UAT-SEC-03",
+   "module": "LINTAS",
+   "title": "Pembatasan percobaan OTP (brute force)",
+   "priority": "High",
+   "result": "Pass",
+   "note": "OTP di-invalidate setelah 3x salah; resend menghormati cooldown (429)"
+  },
+  {
+   "id": "UAT-AUD-01",
+   "module": "LINTAS",
+   "title": "Jejak audit perubahan status dan keputusan tercatat",
+   "priority": "High",
+   "result": "Pass",
+   "note": "85 entri audit; perubahan status booking/payment/refund + keputusan Finance tercatat dgn actor & waktu"
+  },
+  {
+   "id": "UAT-E2E-01",
+   "module": "LINTAS",
+   "title": "Alur ujung-ke-ujung utama (happy path)",
+   "priority": "Critical",
+   "result": "Pass",
+   "note": "E2E lengkap: register->OTP->login->search->booking->bayar->invoice+e-ticket->Inprogress->cancel->refund->Finance approve->execute->COMPLETED"
+  }
+ ],
+ "latencies": {
+  "history": [
+   3,
+   1
+  ],
+  "search": [
+   3
+  ]
+ }
+}

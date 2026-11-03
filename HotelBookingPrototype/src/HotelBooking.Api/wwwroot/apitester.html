@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hotel Booking — API Tester</title>
+<style>
+  :root { --primary:#1a56db; --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --text:#e2e8f0;
+          --muted:#94a3b8; --green:#10b981; --red:#ef4444; --amber:#f59e0b; --border:#334155; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+  header { background:var(--panel); border-bottom:1px solid var(--border); padding:10px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  header h1 { font-size:16px; white-space:nowrap; }
+  header .spacer { flex:1; }
+  header input, header select { background:var(--panel2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:7px 10px; font-size:13px; }
+  header a { color:#93c5fd; font-size:13px; text-decoration:none; }
+  .layout { flex:1; display:flex; min-height:0; }
+  aside { width:290px; background:var(--panel); border-right:1px solid var(--border); overflow-y:auto; padding:10px 0 30px; }
+  aside h3 { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); padding:12px 14px 6px; }
+  .ep { display:flex; align-items:center; gap:8px; padding:7px 14px; cursor:pointer; font-size:12.5px; border-left:3px solid transparent; }
+  .ep:hover { background:var(--panel2); }
+  .ep.active { background:var(--panel2); border-left-color:var(--primary); }
+  .ep .m { font-size:9.5px; font-weight:700; padding:2px 5px; border-radius:4px; min-width:38px; text-align:center; }
+  .m.GET { background:#064e3b; color:#6ee7b7; } .m.POST { background:#1e3a8a; color:#93c5fd; }
+  .ep .p { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:Consolas,monospace; }
+  .ep .lock { margin-left:auto; color:var(--amber); font-size:11px; }
+  main { flex:1; display:flex; flex-direction:column; min-width:0; }
+  .reqbar { display:flex; gap:8px; padding:12px 16px; background:var(--panel); border-bottom:1px solid var(--border); align-items:center; }
+  .reqbar select { background:#065f46; color:#fff; border:none; border-radius:6px 0 0 6px; padding:9px 10px; font-weight:700; font-size:13px; }
+  .reqbar input.url { flex:1; background:var(--panel2); color:var(--text); border:1px solid var(--border); padding:9px 12px; font-family:Consolas,monospace; font-size:13px; }
+  .reqbar button { border:none; border-radius:6px; padding:9px 18px; font-size:13px; font-weight:600; cursor:pointer; }
+  .btn-send { background:var(--primary); color:#fff; } .btn-send:hover { opacity:.9; }
+  .btn-ghost { background:var(--panel2); color:var(--text); border:1px solid var(--border) !important; }
+  .tabs { display:flex; gap:2px; padding:0 16px; background:var(--panel); border-bottom:1px solid var(--border); }
+  .tabs button { background:none; border:none; color:var(--muted); padding:9px 14px; font-size:12.5px; cursor:pointer; border-bottom:2px solid transparent; }
+  .tabs button.active { color:#fff; border-bottom-color:var(--primary); }
+  .panel { display:none; padding:12px 16px; overflow-y:auto; }
+  .panel.active { display:block; }
+  textarea { width:100%; background:var(--panel2); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:10px;
+             font-family:Consolas,'Courier New',monospace; font-size:12.5px; line-height:1.5; resize:vertical; }
+  .kv { display:flex; gap:6px; margin-bottom:6px; align-items:center; }
+  .kv input { flex:1; background:var(--panel2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:7px 10px; font-size:12.5px; font-family:Consolas,monospace; }
+  .kv button { background:none; border:none; color:var(--red); cursor:pointer; font-size:15px; }
+  .hint { color:var(--muted); font-size:12px; margin:6px 0 10px; line-height:1.5; }
+  .res { border-top:1px solid var(--border); background:var(--panel); display:flex; flex-direction:column; min-height:140px; height:42%; }
+  .res-head { display:flex; align-items:center; gap:14px; padding:8px 16px; border-bottom:1px solid var(--border); font-size:12.5px; flex-wrap:wrap; }
+  .res-head .stat { font-weight:700; padding:3px 10px; border-radius:999px; font-size:12px; }
+  .stat.ok { background:#064e3b; color:#6ee7b7; } .stat.bad { background:#7f1d1d; color:#fca5a5; } .stat.idle { background:var(--panel2); color:var(--muted); }
+  .res-body { flex:1; overflow:auto; padding:12px 16px; }
+  .res-body pre { font-family:Consolas,monospace; font-size:12px; line-height:1.55; white-space:pre-wrap; word-break:break-word; }
+  .j-key { color:#7dd3fc; } .j-str { color:#86efac; } .j-num { color:#fbbf24; } .j-bool { color:#c4b5fd; } .j-null { color:#f87171; }
+  .pill { background:var(--panel2); border:1px solid var(--border); color:var(--muted); border-radius:999px; padding:3px 10px; font-size:11.5px; cursor:pointer; }
+  .pill:hover { color:#fff; border-color:var(--primary); }
+  #toast { position:fixed; bottom:20px; right:20px; background:#0b1220; border:1px solid var(--border); color:#fff; padding:11px 16px; border-radius:8px; font-size:13px; opacity:0; transition:opacity .25s; z-index:99; max-width:380px; }
+  .hist { cursor:pointer; padding:6px 14px; font-size:12px; font-family:Consolas,monospace; color:var(--muted); border-left:3px solid transparent; }
+  .hist:hover { background:var(--panel2); color:var(--text); }
+  .token-box { display:flex; gap:8px; align-items:center; }
+  .token-box input { width:230px; }
+  label.small { display:block; font-size:11px; color:var(--muted); margin:2px 0 4px; text-transform:uppercase; letter-spacing:.05em; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🧪 API Tester — Hotel Booking Prototype</h1>
+  <label class="small" style="margin:0">Base URL</label>
+  <input id="base-url" value="" style="width:210px" placeholder="http://localhost:5210">
+  <div class="token-box">
+    <label class="small" style="margin:0">Token</label>
+    <input id="token" placeholder="JWT access token (otomatis dari login)">
+    <button class="pill" onclick="clearToken()">✕</button>
+  </div>
+  <div class="spacer"></div>
+  <a href="/">← UI Booking</a>
+  <a href="/swagger" target="_blank">Swagger ↗</a>
+</header>
+
+<div class="layout">
+  <aside>
+    <h3>Endpoint</h3>
+    <div id="ep-list"></div>
+    <h3>Riwayat Request</h3>
+    <div id="hist-list"><div class="hint" style="padding:0 14px">Belum ada request.</div></div>
+  </aside>
+
+  <main>
+    <div class="reqbar">
+      <select id="method">
+        <option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option>
+      </select>
+      <input id="path" class="url" placeholder="/api/v1/...">
+      <button class="btn-send" onclick="send()">Kirim ▶</button>
+      <button class="btn-ghost" onclick="copyCurl()">cURL</button>
+    </div>
+
+    <div class="tabs">
+      <button data-tab="body" class="active">Body</button>
+      <button data-tab="params">Query Params</button>
+      <button data-tab="headers">Headers</button>
+      <button data-tab="help">Info Endpoint</button>
+    </div>
+
+    <div class="panel active" id="tab-body">
+      <div class="hint">Body JSON (camelCase sesuai DTO). Biarkan kosong untuk request tanpa body. Respons login mengandung <b>access_token</b> — gunakan tombol "Ambil token" di panel respons.</div>
+      <textarea id="body" rows="12" spellcheck="false"></textarea>
+      <div style="margin-top:8px; display:flex; gap:8px">
+        <button class="pill" onclick="formatBody()">Format JSON</button>
+        <button class="pill" onclick="resetTemplate()">Reset ke Template</button>
+      </div>
+    </div>
+
+    <div class="panel" id="tab-params">
+      <div class="hint">Query parameter — otomatis tersinkron dengan path di atas.</div>
+      <div id="params-list"></div>
+      <button class="pill" onclick="addRow('params-list')">+ Tambah Param</button>
+    </div>
+
+    <div class="panel" id="tab-headers">
+      <div class="hint">Header tambahan. <b>Authorization: Bearer &lt;token&gt;</b> dan <b>Content-Type</b> ditambahkan otomatis.</div>
+      <div id="headers-list"></div>
+      <button class="pill" onclick="addRow('headers-list')">+ Tambah Header</button>
+      <div class="hint" style="margin-top:12px">Header khusus yang terkirim:</div>
+      <pre id="auto-headers" style="font-family:Consolas,monospace;font-size:12px;color:var(--muted)"></pre>
+    </div>
+
+    <div class="panel" id="tab-help">
+      <div id="help-box" class="hint">Pilih endpoint di panel kiri.</div>
+    </div>
+
+    <div class="res">
+      <div class="res-head">
+        <span class="stat idle" id="stat">Belum ada response</span>
+        <span id="meta" style="color:var(--muted)"></span>
+        <div class="spacer" style="flex:1"></div>
+        <button class="pill" onclick="copyResponse()">Salin Response</button>
+        <button class="pill" id="grab-token" onclick="grabToken()" style="display:none">🔑 Ambil token dari response</button>
+      </div>
+      <div class="res-body"><pre id="res-out">Response akan tampil di sini.</pre></div>
+    </div>
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const today = new Date(), d7 = new Date(today.getTime() + 7 * 86400000);
+const iso = d => d.toISOString().slice(0, 10);
+const DEF_IN = iso(today), DEF_OUT = iso(d7);
+
+// ---------- Katalog endpoint ----------
+const ENDPOINTS = [
+  { group: 'Auth', method: 'POST', path: '/api/v1/auth/register', auth: false,
+    desc: 'Registrasi user baru. Sistem mengirim OTP ke email (tercetak di console/log server).',
+    body: { email: 'baru@demo.com', password: 'Demo1234!', fullName: 'User Baru', phoneNumber: '081200000000' } },
+  { group: 'Auth', method: 'POST', path: '/api/v1/auth/verify-otp', auth: false,
+    desc: 'Verifikasi OTP hasil registrasi. Body: { email, otpCode }.',
+    body: { email: 'baru@demo.com', otpCode: '123456' } },
+  { group: 'Auth', method: 'POST', path: '/api/v1/auth/resend-otp', auth: false,
+    desc: 'Kirim ulang OTP. Body: { email }.',
+    body: { email: 'baru@demo.com' } },
+  { group: 'Auth', method: 'POST', path: '/api/v1/auth/login', auth: false,
+    desc: 'Login. Demo: customer@demo.com / finance@demo.com / admin@demo.com — password Demo1234!. Response berisi access_token & refresh_token.',
+    body: { emailOrPhone: 'customer@demo.com', password: 'Demo1234!' } },
+  { group: 'Auth', method: 'POST', path: '/api/v1/auth/refresh', auth: false,
+    desc: 'Perbarui access token memakai refresh_token dari response login.',
+    body: { refreshToken: '<tempel refresh_token di sini>' } },
+  { group: 'Auth', method: 'POST', path: '/api/v1/auth/logout', auth: false,
+    desc: 'Logout — mencabut refresh_token.',
+    body: { refreshToken: '<tempel refresh_token di sini>' } },
+
+  { group: 'Hotels', method: 'GET', path: `/api/v1/hotels/search?destination=Jakarta&checkIn=${DEF_IN}&checkOut=${DEF_OUT}&guestCount=2`, auth: false,
+    desc: 'Cari hotel + ketersediaan kamar. Parameter: destination, checkIn (yyyy-MM-dd), checkOut, guestCount.' },
+  { group: 'Hotels', method: 'GET', path: `/api/v1/hotels/HOTEL_ID?checkIn=${DEF_IN}&checkOut=${DEF_OUT}&guestCount=2`, auth: false,
+    desc: 'Detail satu hotel. Ganti HOTEL_ID dengan hotelId hasil pencarian.' },
+
+  { group: 'Bookings', method: 'POST', path: '/api/v1/bookings', auth: true,
+    desc: 'Buat booking (butuh login). Status awal PENDING_PAYMENT, kadaluarsa 30 menit.',
+    body: { hotelId: 'HOTEL_ID', roomId: 'ROOM_ID', guestName: 'Budi Santoso', checkIn: DEF_IN, checkOut: DEF_OUT, guestCount: 2 } },
+  { group: 'Bookings', method: 'GET', path: '/api/v1/bookings/history?group=inprogress&page=1&size=10', auth: true,
+    desc: 'Riwayat booking milik user login. group: inprogress | completed.' },
+  { group: 'Bookings', method: 'GET', path: '/api/v1/bookings/BOOKING_ID', auth: true,
+    desc: 'Detail booking. Ganti BOOKING_ID dengan bookingId (GUID).' },
+  { group: 'Bookings', method: 'GET', path: '/api/v1/bookings/BOOKING_ID/cancellation-preview', auth: true,
+    desc: 'Preview dampak pembatalan: policy, penalty, estimasi refund.' },
+  { group: 'Bookings', method: 'POST', path: '/api/v1/bookings/BOOKING_ID/cancel', auth: true,
+    desc: 'Batalkan booking. Body: { reason }.',
+    body: { reason: 'Rencana berubah' } },
+  { group: 'Bookings', method: 'GET', path: '/api/v1/bookings/BOOKING_ID/invoice', auth: true,
+    desc: 'Ambil invoice. Hanya tersedia setelah pembayaran sukses (404 jika belum).' },
+
+  { group: 'Payments', method: 'POST', path: '/api/v1/payments', auth: true,
+    desc: 'Buat pembayaran untuk booking. method: VA | CC | QRIS | EWALLET.',
+    body: { bookingId: 'BOOKING_ID', method: 'VA' } },
+  { group: 'Payments', method: 'GET', path: '/api/v1/payments/PAYMENT_ID', auth: true,
+    desc: 'Detail pembayaran.' },
+  { group: 'Payments', method: 'POST', path: '/api/v1/payments/PAYMENT_ID/simulate-callback?status=SUCCESS', auth: true,
+    desc: 'Simulasi callback gateway (prototipe). status: SUCCESS | FAILED. Otomatis membuat invoice & e-ticket bila SUCCESS.',
+    body: {} },
+  { group: 'Payments', method: 'POST', path: '/api/v1/payments/callback', auth: false,
+    desc: 'Callback asli dari Payment Gateway — RAW body + header X-Signature (HMAC-SHA256 raw body). Gunakan tab Headers untuk X-Signature.',
+    body: { externalTransactionId: 'EXT-001', orderId: 'ORDER-001', status: 'SUCCESS', amount: 1000000, currency: 'IDR', paidAt: new Date().toISOString() } },
+
+  { group: 'E-Tickets', method: 'GET', path: '/api/v1/etickets/verify?code=QR_CODE', auth: false,
+    desc: 'Verifikasi e-ticket berdasarkan isi QR code.' },
+  { group: 'E-Tickets', method: 'POST', path: '/api/v1/etickets/reissue', auth: true,
+    desc: 'Terbitkan ulang e-ticket untuk booking yang sudah PAID.',
+    body: { bookingId: 'BOOKING_ID' } },
+
+  { group: 'Refunds', method: 'GET', path: '/api/v1/refunds', auth: true,
+    desc: 'Daftar refund. Customer melihat miliknya; Finance/Admin melihat semua.' },
+  { group: 'Refunds', method: 'GET', path: '/api/v1/refunds/REFUND_ID', auth: true,
+    desc: 'Detail satu refund.' },
+  { group: 'Refunds', method: 'POST', path: '/api/v1/refunds/REFUND_ID/approve', auth: true,
+    desc: 'Setujui refund (role Finance/Admin).', body: {} },
+  { group: 'Refunds', method: 'POST', path: '/api/v1/refunds/REFUND_ID/reject', auth: true,
+    desc: 'Tolak refund (role Finance/Admin). Body: { reason }.',
+    body: { reason: 'Data tidak valid' } },
+  { group: 'Refunds', method: 'POST', path: '/api/v1/refunds/REFUND_ID/execute', auth: true,
+    desc: 'Eksekusi refund yang sudah disetujui (role Finance/Admin).', body: {} },
+];
+
+let current = null;
+let lastResponseText = '';
+
+// ---------- Sidebar ----------
+function renderEndpoints() {
+  const box = $('ep-list');
+  box.innerHTML = '';
+  const groups = [...new Set(ENDPOINTS.map(e => e.group))];
+  groups.forEach(g => {
+    const h = document.createElement('h3');
+    h.textContent = g;
+    box.appendChild(h);
+    ENDPOINTS.filter(e => e.group === g).forEach(e => {
+      const d = document.createElement('div');
+      d.className = 'ep';
+      d.innerHTML = `<span class="m ${e.method}">${e.method}</span><span class="p">${e.path.split('?')[0]}</span>` +
+                    (e.auth ? '<span class="lock" title="Butuh login">🔒</span>' : '');
+      d.onclick = () => selectEndpoint(e, d);
+      box.appendChild(d);
+    });
+  });
+}
+
+function selectEndpoint(e, el) {
+  current = e;
+  document.querySelectorAll('.ep').forEach(x => x.classList.remove('active'));
+  if (el) el.classList.add('active');
+  $('method').value = e.method;
+  $('path').value = e.path;
+  $('body').value = e.body ? JSON.stringify(e.body, null, 2) : '';
+  $('help-box').innerHTML = `<b>${e.method} ${e.path}</b><br><br>${e.desc || '-'}` +
+    (e.auth ? '<br><br>🔒 Endpoint ini butuh token — login dulu lewat <b>POST /api/v1/auth/login</b>, lalu klik "Ambil token dari response".' : '');
+  syncParamsFromPath();
+  renderAutoHeaders();
+}
+
+// ---------- Query params <-> path ----------
+function syncParamsFromPath() {
+  const [base, qs] = $('path').value.split('?');
+  const rows = $('params-list');
+  rows.innerHTML = '';
+  if (qs) new URLSearchParams(qs).forEach((v, k) => addRow('params-list', k, v));
+}
+function syncPathFromParams() {
+  const base = $('path').value.split('?')[0];
+  const ps = new URLSearchParams();
+  document.querySelectorAll('#params-list .kv').forEach(r => {
+    const [k, v] = r.querySelectorAll('input');
+    if (k.value.trim()) ps.set(k.value.trim(), v.value);
+  });
+  const qs = ps.toString();
+  $('path').value = base + (qs ? '?' + qs : '');
+}
+function addRow(listId, k = '', v = '') {
+  const d = document.createElement('div');
+  d.className = 'kv';
+  d.innerHTML = `<input placeholder="key" value="${k}"><input placeholder="value" value="${v}"><button title="hapus">✕</button>`;
+  d.querySelector('button').onclick = () => { d.remove(); if (listId === 'params-list') syncPathFromParams(); };
+  d.querySelectorAll('input').forEach(i => i.oninput = () => { if (listId === 'params-list') syncPathFromParams(); });
+  $(listId).appendChild(d);
+}
+
+// ---------- Headers ----------
+function extraHeaders() {
+  const h = {};
+  document.querySelectorAll('#headers-list .kv').forEach(r => {
+    const [k, v] = r.querySelectorAll('input');
+    if (k.value.trim()) h[k.value.trim()] = v.value;
+  });
+  return h;
+}
+function renderAutoHeaders() {
+  const t = $('token').value.trim();
+  $('auto-headers').textContent =
+    'Content-Type: application/json\n' +
+    (t ? 'Authorization: Bearer ' + (t.length > 40 ? t.slice(0, 24) + '…(' + t.length + ' chars)' : t) : 'Authorization: (tidak ada token)');
+}
+$('token').addEventListener('input', renderAutoHeaders);
+
+// ---------- Send ----------
+async function send() {
+  const method = $('method').value;
+  const rawPath = $('path').value.trim();
+  if (!rawPath) { toast('Path kosong', true); return; }
+  let bodyText = $('body').value.trim();
+  if (bodyText) {
+    try { JSON.parse(bodyText); } catch (e) { toast('Body bukan JSON valid: ' + e.message, true); return; }
+  }
+  const base = $('base-url').value.trim();
+  const url = (base.replace(/\/$/, '') + rawPath);
+
+  const headers = Object.assign({ 'Content-Type': 'application/json' }, extraHeaders());
+  const t = $('token').value.trim();
+  if (t) headers['Authorization'] = 'Bearer ' + t;
+
+  const init = { method, headers };
+  if (bodyText && method !== 'GET') init.body = bodyText;
+
+  $('stat').className = 'stat idle';
+  $('stat').textContent = 'Mengirim…';
+  $('meta').textContent = url;
+  const started = performance.now();
+  let res, text;
+  try {
+    res = await fetch(url, init);
+    text = await res.text();
+  } catch (err) {
+    $('stat').className = 'stat bad';
+    $('stat').textContent = 'ERROR';
+    $('meta').textContent = err.message;
+    $('res-out').textContent = 'Request gagal: ' + err.message + '\n\nPastikan API berjalan (dotnet run) dan Base URL benar.';
+    return;
+  }
+  const ms = Math.round(performance.now() - started);
+  lastResponseText = text;
+  $('stat').className = 'stat ' + (res.ok ? 'ok' : 'bad');
+  $('stat').textContent = res.status + ' ' + res.statusText;
+  $('meta').textContent = `${ms} ms · ${new Blob([text]).size} bytes · ${url}`;
+  try {
+    $('res-out').innerHTML = syntaxHighlight(JSON.parse(text));
+  } catch {
+    $('res-out').textContent = text || '(kosong)';
+  }
+  $('grab-token').style.display = /access_token|refreshToken/.test(text) ? '' : 'none';
+  pushHistory(method, rawPath, res.status, bodyText);
+}
+
+// ---------- Token ----------
+function grabToken() {
+  try {
+    const j = JSON.parse(lastResponseText);
+    const d = j.data || j;
+    const tok = d.access_token || d.accessToken || d.token;
+    if (tok) { $('token').value = tok; renderAutoHeaders(); toast('Token tersimpan — request berikutnya otomatis memakainya.'); return; }
+    toast('access_token tidak ditemukan di response', true);
+  } catch { toast('Response bukan JSON', true); }
+}
+function clearToken() { $('token').value = ''; renderAutoHeaders(); toast('Token dibersihkan'); }
+
+// ---------- History ----------
+function pushHistory(method, path, status, body) {
+  const h = JSON.parse(localStorage.getItem('api-tester-history') || '[]');
+  h.unshift({ method, path, status, body, token: $('token').value, at: Date.now() });
+  localStorage.setItem('api-tester-history', JSON.stringify(h.slice(0, 25)));
+  renderHistory();
+}
+function renderHistory() {
+  const h = JSON.parse(localStorage.getItem('api-tester-history') || '[]');
+  const box = $('hist-list');
+  if (!h.length) { box.innerHTML = '<div class="hint" style="padding:0 14px">Belum ada request.</div>'; return; }
+  box.innerHTML = '';
+  h.forEach(x => {
+    const d = document.createElement('div');
+    d.className = 'hist';
+    d.innerHTML = `<span class="m ${x.method}" style="font-size:9px;padding:1px 4px;border-radius:3px">${x.method}</span> ` +
+                  `${x.path.split('?')[0].slice(0, 34)} <span style="color:${x.status < 400 ? '#10b981' : '#ef4444'}">${x.status}</span>`;
+    d.title = x.path;
+    d.onclick = () => {
+      $('method').value = x.method;
+      $('path').value = x.path;
+      $('body').value = x.body || '';
+      if (x.token) { $('token').value = x.token; renderAutoHeaders(); }
+      syncParamsFromPath();
+    };
+    box.appendChild(d);
+  });
+}
+
+// ---------- Utils ----------
+function syntaxHighlight(json) {
+  let s = JSON.stringify(json, null, 2)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return s.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false)\b|\bnull\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, m => {
+    let cls = 'j-num';
+    if (/^"/.test(m)) cls = /:$/.test(m) ? 'j-key' : 'j-str';
+    else if (/true|false/.test(m)) cls = 'j-bool';
+    else if (/null/.test(m)) cls = 'j-null';
+    return `<span class="${cls}">${m}</span>`;
+  });
+}
+function formatBody() {
+  try { $('body').value = JSON.stringify(JSON.parse($('body').value), null, 2); toast('JSON diformat'); }
+  catch (e) { toast('JSON tidak valid: ' + e.message, true); }
+}
+function resetTemplate() {
+  if (current) { $('body').value = current.body ? JSON.stringify(current.body, null, 2) : ''; toast('Body dikembalikan ke template'); }
+}
+function copyResponse() {
+  navigator.clipboard.writeText(lastResponseText || '').then(() => toast('Response disalin'));
+}
+function copyCurl() {
+  const method = $('method').value;
+  const url = $('base-url').value.trim().replace(/\/$/, '') + $('path').value.trim();
+  const t = $('token').value.trim();
+  const body = $('body').value.trim();
+  let c = `curl -X ${method} '${url}'`;
+  Object.entries(extraHeaders()).forEach(([k, v]) => c += ` \\\n  -H '${k}: ${v}'`);
+  if (t) c += ` \\\n  -H 'Authorization: Bearer ${t}'`;
+  if (body) c += ` \\\n  -H 'Content-Type: application/json' \\\n  -d '${body.replace(/'/g, "'\\''")}'`;
+  navigator.clipboard.writeText(c).then(() => toast('Perintah cURL disalin ke clipboard'));
+}
+function toast(msg, isErr) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.style.borderColor = isErr ? '#ef4444' : '#334155';
+  t.style.opacity = 1;
+  clearTimeout(t._h);
+  t._h = setTimeout(() => t.style.opacity = 0, 3200);
+}
+
+// ---------- Tabs ----------
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  $('tab-' + b.dataset.tab).classList.add('active');
+});
+
+// ---------- Init ----------
+$('base-url').value = location.origin;
+renderEndpoints();
+renderHistory();
+renderAutoHeaders();
+selectEndpoint(ENDPOINTS.find(e => e.path === '/api/v1/auth/login'));
+addRow('headers-list', 'X-Signature', '');
+</script>
+</body>
+</html>

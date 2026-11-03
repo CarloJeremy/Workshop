@@ -1,0 +1,29 @@
+{
+ "results": [
+  {
+   "id": "UAT-BKG-06",
+   "module": "MOD-04",
+   "title": "Booking expired setelah 30 menit tanpa pembayaran",
+   "priority": "Critical",
+   "result": "Pass",
+   "note": "booking otomatis EXPIRED setelah batas (terdeteksi <= 1 menit); kamar kembali tersedia"
+  },
+  {
+   "id": "UAT-PAY-04",
+   "module": "MOD-05",
+   "title": "Pembayaran ditolak untuk booking expired",
+   "priority": "Critical",
+   "result": "Pass",
+   "note": "pembayaran untuk booking Expired ditolak (BOOKING_EXPIRED)"
+  },
+  {
+   "id": "UAT-PAY-07",
+   "module": "MOD-05",
+   "title": "Callback terlambat setelah booking expired/cancelled",
+   "priority": "High",
+   "result": "Pass",
+   "note": "callback terlambat setelah Expired: status TIDAK berubah, tanpa invoice/e-ticket, dicatat utk rekonsiliasi"
+  }
+ ],
+ "latencies": {}
+}

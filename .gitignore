@@ -1,0 +1,13 @@
+# Secrets — never commit
+keys/
+
+# .NET build artifacts
+bin/
+obj/
+.vs/
+*.user
+*.suo
+
+# Misc
+Thumbs.db
+.DS_Store
