@@ -184,6 +184,7 @@
       <button data-view="verify">Verifikasi QR</button>
     </div>
     <div class="right">
+      <a href="/admin.html" id="lnk-admin" class="hidden" style="font-size:13px;font-weight:700">⚙️ Admin</a>
       <a href="/apitester.html" style="font-size:13px">API Tester</a>
       <a href="/swagger" target="_blank" style="font-size:13px">Swagger</a>
       <div class="user-chip hidden" id="user-chip">👤 <div><span id="user-name">-</span><small id="last-login"></small></div></div>
@@ -503,6 +504,7 @@ function setWho() {
   const loggedIn = !!token;
   $('user-chip').classList.toggle('hidden', !loggedIn);
   $('btn-login').classList.toggle('hidden', loggedIn);
+  $('lnk-admin').classList.toggle('hidden', !['Admin', 'Finance', 'Management'].includes(role));
   $('btn-logout').classList.toggle('hidden', !loggedIn);
   $('user-name').textContent = (localStorage.getItem('hk_email') || 'Pengguna') + (role && role !== 'Customer' ? ' · ' + role : '');
   const ll = localStorage.getItem('hk_lastlogin');

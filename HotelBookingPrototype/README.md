@@ -38,6 +38,15 @@ Registrasi baru (`/api/v1/auth/register`) mencetak OTP ke console aplikasi
 | MOD-06 E-Ticket | `GET /api/v1/etickets/verify?code=`, `POST /api/v1/etickets/reissue` |
 | MOD-08 Cancellation | `GET /api/v1/bookings/{id}/cancellation-preview`, `POST /api/v1/bookings/{id}/cancel` |
 | MOD-09 Refund | `GET /api/v1/refunds/{id}`, `POST /api/v1/refunds/{id}/approve|reject|execute` (Finance) |
+| MOD-10 Admin Panel | `GET /api/v1/admin/dashboard`, `GET|POST /api/v1/admin/hotels`, `PUT /api/v1/admin/hotels/{id}`, `POST /api/v1/admin/hotels/{id}/status`, `POST /api/v1/admin/hotels/{id}/rooms`, `PUT|DELETE /api/v1/admin/rooms/{id}`, `GET /api/v1/admin/bookings`, `GET /api/v1/admin/bookings/recap`, `GET /api/v1/admin/users`, `POST /api/v1/admin/users/{id}/status`, `GET /api/v1/admin/audits`, `GET /api/v1/admin/notifications` |
+
+## Panel Admin (`/admin.html`)
+
+Konsol admin di `http://localhost:5210/admin.html` (login dengan `admin@demo.com` / `Demo1234!`).
+Fitur: dashboard statistik, **tambah/edit/nonaktifkan hotel & tipe kamar**, **rekap booking**
+(per status, per hotel, tren harian, detail berfilter), persetujuan refund, kelola status
+pengguna, serta audit log & log notifikasi. RBAC: tulis katalog/pengguna khusus `Admin`;
+`Finance`/`Management` akses baca + approve/reject refund.
 
 ## Alur Demo Singkat
 

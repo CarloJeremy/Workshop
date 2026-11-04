@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HotelKu — Admin Console</title>
+<style>
+  :root {
+    --blue:#0064d2; --blue2:#1b9fe0; --blue-soft:#e8f2fd;
+    --orange:#f26b22; --orange-dark:#d9530e;
+    --bg:#f5f7fa; --card:#fff; --text:#24292f; --muted:#6b7785;
+    --green:#00875a; --red:#d93025; --amber:#b26a00;
+    --border:#e3e8ee; --radius:12px; --shadow:0 2px 10px rgba(20,40,80,.08);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--text); font-size:14px; }
+  a { color:var(--blue); text-decoration:none; }
+  button { font-family:inherit; }
+  .hidden { display:none !important; }
+
+  /* ---------- Topbar ---------- */
+  header { position:sticky; top:0; z-index:50; background:#16406f; box-shadow:0 2px 14px rgba(10,25,50,.28); }
+  .nav { display:flex; align-items:center; gap:18px; padding:12px 22px; }
+  .logo { display:flex; align-items:center; gap:8px; font-size:19px; font-weight:800; color:#fff; }
+  .logo .mark { width:30px; height:30px; background:linear-gradient(135deg,var(--blue),var(--blue2)); border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:15px; }
+  .logo small { font-size:12px; font-weight:600; color:#9dc3ea; margin-left:6px; }
+  .nav .right { margin-left:auto; display:flex; align-items:center; gap:10px; }
+  .nav .right a { color:#cfe0f2; font-size:13px; } .nav .right a:hover { color:#fff; }
+  .user-chip { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,.15); padding:6px 12px; border-radius:999px; font-size:13px; color:#fff; font-weight:600; }
+
+  /* ---------- Layout ---------- */
+  .layout { display:flex; min-height:calc(100vh - 55px); }
+  .sidebar { width:220px; background:#fff; border-right:1px solid var(--border); padding:16px 10px; flex-shrink:0; }
+  .sidebar .section-label { font-size:10.5px; font-weight:700; letter-spacing:.08em; color:var(--muted); padding:10px 12px 6px; }
+  .sidebar button { display:flex; align-items:center; gap:10px; width:100%; text-align:left; background:none; border:none; padding:10px 12px; font-size:13.5px; color:var(--text); cursor:pointer; border-radius:9px; margin-bottom:2px; }
+  .sidebar button:hover { background:var(--blue-soft); color:var(--blue); }
+  .sidebar button.active { background:var(--blue); color:#fff; font-weight:700; }
+  .sidebar button .badge { margin-left:auto; background:var(--orange); color:#fff; font-size:10.5px; padding:1px 8px; border-radius:999px; font-weight:700; }
+  .sidebar button.active .badge { background:#fff; color:var(--blue); }
+  main { flex:1; padding:26px 30px 60px; max-width:1240px; }
+  h2 { font-size:21px; margin-bottom:4px; }
+  .sub { color:var(--muted); margin-bottom:22px; font-size:13px; }
+
+  /* ---------- Cards & tables ---------- */
+  .card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px 20px; margin-bottom:18px; }
+  .card h3 { font-size:15px; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .grid { display:grid; gap:14px; }
+  .g4 { grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); }
+  .g2 { grid-template-columns:1fr 1fr; }
+  .stat { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; box-shadow:var(--shadow); }
+  .stat .label { font-size:12px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+  .stat .value { font-size:23px; font-weight:800; margin-top:5px; }
+  .stat .hint { font-size:11.5px; color:var(--muted); margin-top:3px; }
+  .stat .icon { float:right; font-size:22px; opacity:.85; }
+
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th { text-align:left; padding:9px 10px; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.05em; border-bottom:2px solid var(--border); white-space:nowrap; }
+  td { padding:10px; border-bottom:1px solid var(--border); vertical-align:middle; }
+  tr:hover td { background:#f8fafc; }
+  .empty { padding:26px; text-align:center; color:var(--muted); }
+
+  .tag { display:inline-block; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700; }
+  .t-green { background:#e3f5ec; color:var(--green); }
+  .t-red { background:#fdecea; color:var(--red); }
+  .t-amber { background:#fdf3e3; color:var(--amber); }
+  .t-blue { background:var(--blue-soft); color:var(--blue); }
+  .t-gray { background:#eef1f4; color:var(--muted); }
+
+  .btn { border:none; border-radius:10px; padding:10px 20px; font-size:13.5px; font-weight:700; cursor:pointer; transition:.15s; }
+  .btn:disabled { opacity:.55; cursor:not-allowed; }
+  .btn-primary { background:var(--blue); color:#fff; } .btn-primary:hover:not(:disabled) { background:#0053ad; }
+  .btn-orange { background:var(--orange); color:#fff; } .btn-orange:hover:not(:disabled) { background:var(--orange-dark); }
+  .btn-ghost { background:#fff; color:var(--blue); border:1.5px solid var(--blue); }
+  .btn-danger { background:#fdecea; color:var(--red); }
+  .btn-sm { padding:6px 12px; font-size:12px; border-radius:8px; }
+
+  input, select, textarea { font-family:inherit; font-size:13.5px; padding:9px 12px; border:1.5px solid var(--border); border-radius:9px; background:#fff; color:var(--text); width:100%; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--blue); }
+  label { font-size:12px; font-weight:700; color:var(--muted); display:block; margin:10px 0 5px; }
+  .filters { display:flex; gap:10px; flex-wrap:wrap; align-items:end; margin-bottom:16px; }
+  .filters > div { min-width:150px; flex:1; max-width:230px; }
+  .filters .btn { flex:0; }
+
+  /* ---------- Bars ---------- */
+  .bar-row { display:flex; align-items:center; gap:10px; margin:7px 0; }
+  .bar-row .lbl { width:130px; font-size:12px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar-track { flex:1; background:#eef1f4; border-radius:6px; height:16px; overflow:hidden; }
+  .bar-fill { height:100%; border-radius:6px; background:linear-gradient(90deg,var(--blue),var(--blue2)); min-width:2px; transition:width .4s; }
+  .bar-fill.alt { background:linear-gradient(90deg,var(--orange),#ffa15c); }
+  .bar-row .amt { width:120px; font-size:12px; text-align:right; font-weight:700; }
+
+  /* ---------- Modal / toast ---------- */
+  .modal { position:fixed; inset:0; background:rgba(15,30,55,.55); display:flex; align-items:flex-start; justify-content:center; padding:60px 16px; z-index:100; overflow-y:auto; }
+  .modal-box { background:#fff; border-radius:14px; padding:24px 26px; width:100%; max-width:620px; box-shadow:0 18px 60px rgba(0,0,0,.3); position:relative; }
+  .modal-box.wide { max-width:860px; }
+  .modal-box h3 { font-size:17px; margin-bottom:6px; }
+  .close-x { position:absolute; top:14px; right:16px; background:none; border:none; font-size:17px; cursor:pointer; color:var(--muted); }
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:0 14px; }
+  .room-row { display:grid; grid-template-columns:2fr 1fr 1.3fr 1fr 1.3fr 40px; gap:8px; margin-bottom:8px; align-items:center; }
+  .modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:18px; }
+  #toast { position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(80px); background:#24292f; color:#fff; padding:12px 22px; border-radius:10px; font-size:13.5px; font-weight:600; opacity:0; transition:.3s; z-index:200; max-width:80vw; }
+  #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  #toast.err { background:var(--red); }
+
+  /* ---------- Login gate ---------- */
+  .gate { min-height:100vh; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#16406f,#0f66b8); padding:20px; }
+  .gate-box { background:#fff; border-radius:16px; padding:34px 36px; width:100%; max-width:400px; box-shadow:0 24px 70px rgba(0,0,0,.35); }
+  .gate-box h1 { font-size:20px; margin-bottom:2px; }
+  .gate-box .muted { color:var(--muted); font-size:12.5px; margin-bottom:18px; }
+  .demo-hint { margin-top:16px; background:var(--blue-soft); border-radius:10px; padding:11px 14px; font-size:12px; color:#15528f; line-height:1.7; }
+  .pager { display:flex; gap:8px; align-items:center; justify-content:flex-end; margin-top:12px; font-size:12.5px; color:var(--muted); }
+  .link-btn { background:none; border:none; color:var(--blue); cursor:pointer; font-weight:700; font-size:12.5px; }
+  @media (max-width:900px) { .sidebar { display:none; } .g2 { grid-template-columns:1fr; } .form-grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN GATE ================= -->
+<div class="gate" id="gate">
+  <div class="gate-box">
+    <div class="logo" style="color:var(--blue);margin-bottom:14px"><div class="mark">🏨</div>HotelKu <small style="color:var(--muted)">Admin Console</small></div>
+    <h1>Masuk sebagai Admin</h1>
+    <div class="muted">Gunakan akun staf (Admin / Finance / Management) untuk mengakses panel.</div>
+    <label>Email</label>
+    <input id="gate-email" placeholder="admin@demo.com" autocomplete="username">
+    <label>Password</label>
+    <input id="gate-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')gateLogin()">
+    <button class="btn btn-primary" style="width:100%;margin-top:18px" onclick="gateLogin()">Masuk</button>
+    <div class="demo-hint"><b>Akun demo:</b> admin@demo.com · finance@demo.com · management@demo.com — password <b>Demo1234!</b></div>
+    <div style="text-align:center;margin-top:14px"><a href="/">← Kembali ke situs HotelKu</a></div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div class="hidden" id="app">
+<header>
+  <div class="nav">
+    <div class="logo"><div class="mark">🏨</div>HotelKu <small>ADMIN CONSOLE</small></div>
+    <div class="right">
+      <a href="/" target="_blank">Situs Utama</a>
+      <a href="/swagger" target="_blank">Swagger</a>
+      <div class="user-chip" id="user-chip">👤 <span id="user-name">-</span></div>
+      <button class="btn btn-primary btn-sm" onclick="logout()">Keluar</button>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="section-label">RINGKASAN</div>
+    <button data-view="dashboard" class="active">📊 Dashboard</button>
+    <button data-view="bookings">📅 Rekap Booking</button>
+    <div class="section-label">OPERASIONAL</div>
+    <button data-view="hotels">🏨 Data Hotel</button>
+    <button data-view="refunds">💰 Refund <span class="badge hidden" id="badge-refund"></span></button>
+    <button data-view="users">👥 Pengguna</button>
+    <div class="section-label">SISTEM</div>
+    <button data-view="logs">🧾 Audit &amp; Notifikasi</button>
+  </aside>
+
+  <main>
+    <!-- ===== Dashboard ===== -->
+    <section id="view-dashboard">
+      <h2>Dashboard</h2>
+      <div class="sub">Ringkasan performa platform HotelKu.</div>
+      <div class="grid g4" id="stat-cards"></div>
+      <div class="grid g2" style="margin-top:4px">
+        <div class="card">
+          <h3>📈 Pendapatan per Metode Pembayaran</h3>
+          <div id="chart-method"><div class="empty">Belum ada data.</div></div>
+        </div>
+        <div class="card">
+          <h3>🧭 Booking per Status</h3>
+          <div id="chart-status"><div class="empty">Belum ada data.</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>🕐 Booking Terbaru</h3>
+        <div id="recent-bookings"></div>
+      </div>
+    </section>
+
+    <!-- ===== Rekap Booking ===== -->
+    <section id="view-bookings" class="hidden">
+      <h2>Rekap Booking</h2>
+      <div class="sub">Rekapitulasi seluruh booking pelanggan — per status, per hotel, dan detail transaksi.</div>
+      <div class="grid g4" id="recap-cards"></div>
+      <div class="grid g2" style="margin-top:4px">
+        <div class="card"><h3>🏨 Rekap per Hotel</h3><div id="recap-hotel"></div></div>
+        <div class="card"><h3>📅 Tren Booking Berbayar (per hari)</h3><div id="recap-daily"></div></div>
+      </div>
+      <div class="card">
+        <h3>📋 Detail Booking</h3>
+        <div class="filters">
+          <div><label>Cari</label><input id="bk-q" placeholder="No. booking / nama / hotel"></div>
+          <div><label>Status</label><select id="bk-status">
+            <option value="">Semua status</option><option>PENDING_PAYMENT</option><option>PAID</option><option>EXPIRED</option><option>CANCELLED</option>
+          </select></div>
+          <div><label>Hotel</label><select id="bk-hotel"><option value="">Semua hotel</option></select></div>
+          <div><label>Check-in dari</label><input id="bk-from" type="date"></div>
+          <div><label>sampai</label><input id="bk-to" type="date"></div>
+          <button class="btn btn-primary" onclick="loadBookings(1)">Terapkan</button>
+        </div>
+        <div id="booking-table"></div>
+        <div class="pager" id="booking-pager"></div>
+      </div>
+    </section>
+
+    <!-- ===== Data Hotel ===== -->
+    <section id="view-hotels" class="hidden">
+      <h2>Data Hotel</h2>
+      <div class="sub">Kelola katalog hotel dan tipe kamar yang tampil di pencarian pelanggan.</div>
+      <div class="filters">
+        <div><label>Cari</label><input id="ht-q" placeholder="Nama / kota / ID hotel"></div>
+        <div><label>Status</label><select id="ht-active"><option value="">Semua</option><option value="true">Aktif</option><option value="false">Nonaktif</option></select></div>
+        <button class="btn btn-primary" onclick="loadHotels()">Cari</button>
+        <button class="btn btn-orange" onclick="openHotelForm()">＋ Tambah Hotel</button>
+      </div>
+      <div class="card"><div id="hotel-table"></div></div>
+    </section>
+
+    <!-- ===== Refund ===== -->
+    <section id="view-refunds" class="hidden">
+      <h2>Refund</h2>
+      <div class="sub">Persetujuan dan eksekusi refund pembatalan booking (Finance/Admin).</div>
+      <div class="card"><div id="refund-table"></div></div>
+    </section>
+
+    <!-- ===== Pengguna ===== -->
+    <section id="view-users" class="hidden">
+      <h2>Pengguna</h2>
+      <div class="sub">Daftar akun pelanggan &amp; staf. Ubah status akun bila diperlukan.</div>
+      <div class="filters">
+        <div><label>Cari</label><input id="us-q" placeholder="Email / nama"></div>
+        <button class="btn btn-primary" onclick="loadUsers()">Cari</button>
+      </div>
+      <div class="card"><div id="user-table"></div></div>
+    </section>
+
+    <!-- ===== Audit & Notifikasi ===== -->
+    <section id="view-logs" class="hidden">
+      <h2>Audit &amp; Notifikasi</h2>
+      <div class="sub">Jejak audit setiap perubahan penting dan log notifikasi/email sistem.</div>
+      <div class="card"><h3>🧾 Audit Log</h3><div id="audit-table"></div></div>
+      <div class="card"><h3>✉️ Log Notifikasi</h3><div id="notif-table"></div></div>
+    </section>
+  </main>
+</div>
+</div>
+
+<!-- ================= MODAL: Hotel form ================= -->
+<div class="modal hidden" id="modal-hotel">
+  <div class="modal-box wide">
+    <button class="close-x" onclick="closeModal('modal-hotel')">✕</button>
+    <h3 id="hotel-form-title">Tambah Hotel</h3>
+    <div class="sub" style="margin-bottom:6px">Data hotel baru langsung tampil di pencarian pelanggan.</div>
+    <div class="form-grid">
+      <div><label>Nama Hotel *</label><input id="hf-name" placeholder="mis. Verifikat Grand Hotel"></div>
+      <div><label>Kota *</label><input id="hf-city" placeholder="mis. Jakarta"></div>
+    </div>
+    <label>Alamat / Lokasi *</label>
+    <input id="hf-location" placeholder="mis. Jl. Jend. Sudirman No. 1, Jakarta">
+    <div class="form-grid">
+      <div><label>Rating (0–5)</label><input id="hf-rating" type="number" step="0.1" min="0" max="5" value="4.5"></div>
+      <div><label>Fasilitas (pisahkan koma)</label><input id="hf-facilities" placeholder="WiFi, Kolam Renang, Gym"></div>
+    </div>
+    <div style="margin-top:18px;display:flex;align-items:center;justify-content:space-between">
+      <h3 style="margin:0">🛏️ Tipe Kamar</h3>
+      <button class="btn btn-ghost btn-sm" onclick="addRoomRow()">＋ Tambah Tipe Kamar</button>
+    </div>
+    <div class="room-row" style="margin-top:8px;font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase">
+      <div>Nama kamar</div><div>Kapasitas</div><div>Harga / malam (IDR)</div><div>Jumlah unit</div><div>Policy</div><div></div>
+    </div>
+    <div id="hf-rooms"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-hotel')">Batal</button>
+      <button class="btn btn-primary" id="hf-save" onclick="saveHotel()">Simpan Hotel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL: Rooms ================= -->
+<div class="modal hidden" id="modal-rooms">
+  <div class="modal-box wide">
+    <button class="close-x" onclick="closeModal('modal-rooms')">✕</button>
+    <h3 id="rooms-title">Kelola Kamar</h3>
+    <div class="sub" id="rooms-sub"></div>
+    <div id="rooms-list" style="margin-top:10px"></div>
+    <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
+      <h3 style="font-size:14px;margin-bottom:8px">＋ Tambah Tipe Kamar</h3>
+      <div class="room-row" id="new-room-row">
+        <input id="nr-name" placeholder="Nama kamar">
+        <input id="nr-cap" type="number" min="1" placeholder="Kapasitas">
+        <input id="nr-price" type="number" min="1" placeholder="Harga / malam">
+        <input id="nr-total" type="number" min="0" placeholder="Jumlah unit">
+        <select id="nr-policy"><option>Flexible</option><option>NonRefundable</option></select>
+        <button class="btn btn-primary btn-sm" onclick="addRoomToHotel()">＋</button>
+      </div>
+    </div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal('modal-rooms')">Tutup</button></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ================= Helpers =================
+const $ = id => document.getElementById(id);
+let token = localStorage.getItem('hk_token') || '';
+let role = localStorage.getItem('hk_role') || '';
+const STAFF = ['Admin', 'Finance', 'Management'];
+let state = { hotels: [], editHotelId: null, roomsHotelId: null, bkPage: 1 };
+
+function fmt(n, cur = 'IDR') {
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: cur || 'IDR', maximumFractionDigits: 0 }).format(n || 0);
+}
+function fmtDate(s) { return s ? new Date(s).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'; }
+function fmtDt(s) { return s ? new Date(s).toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'; }
+function esc(s) { return String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+function toast(msg, isErr) {
+  const t = $('toast');
+  t.innerHTML = msg; t.className = isErr ? 'show err' : 'show';
+  clearTimeout(t._h); t._h = setTimeout(() => t.className = '', 4000);
+}
+function closeModal(id) { $(id).classList.add('hidden'); }
+
+async function api(method, path, body) {
+  const res = await fetch(path, {
+    method,
+    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) },
+    body: body !== undefined && body !== null ? JSON.stringify(body) : undefined
+  });
+  if (res.status === 401) { logout(true); throw new Error('Sesi berakhir — silakan masuk kembali.'); }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || data.status === 'FAILED') throw new Error(data.message || ('HTTP ' + res.status));
+  return data.data;
+}
+
+const STATUS_TAG = {
+  PENDING_PAYMENT: 't-amber', PAID: 't-green', EXPIRED: 't-gray', CANCELLED: 't-red',
+  PENDING_APPROVAL: 't-amber', APPROVED: 't-blue', REJECTED: 't-red', PROCESSING: 't-blue', COMPLETED: 't-green', FAILED: 't-red',
+  ACTIVE: 't-green', BLOCKED: 't-red', LOCKED: 't-amber', PENDING_VERIFICATION: 't-gray'
+};
+const tag = s => `<span class="tag ${STATUS_TAG[s] || 't-gray'}">${esc(s)}</span>`;
+
+// ================= Auth =================
+function gateLogin() {
+  api('POST', '/api/v1/auth/login', { emailOrPhone: $('gate-email').value.trim(), password: $('gate-pass').value })
+    .then(d => {
+      token = d.access_token; role = d.role || 'Customer';
+      localStorage.setItem('hk_token', token); localStorage.setItem('hk_role', role);
+      localStorage.setItem('hk_email', $('gate-email').value.trim());
+      if (d.last_login_at) localStorage.setItem('hk_lastlogin', d.last_login_at);
+      enterApp();
+    })
+    .catch(e => toast(esc(e.message), true));
+}
+function logout(silent) {
+  api('POST', '/api/v1/auth/logout', { refreshToken: null }).catch(() => {});
+  token = ''; role = '';
+  ['hk_token', 'hk_role', 'hk_email', 'hk_lastlogin'].forEach(k => localStorage.removeItem(k));
+  $('app').classList.add('hidden'); $('gate').classList.remove('hidden');
+  if (!silent) toast('Anda telah keluar.');
+}
+function enterApp() {
+  $('gate').classList.add('hidden'); $('app').classList.remove('hidden');
+  $('user-name').textContent = (localStorage.getItem('hk_email') || '-') + ' · ' + role;
+  if (role === 'Admin') $('user-name').textContent += ' (full akses)';
+  go('dashboard');
+  api('GET', '/api/v1/refunds').then(rs => {
+    const n = rs.filter(r => r.status === 'PENDING_APPROVAL').length;
+    $('badge-refund').textContent = n; $('badge-refund').classList.toggle('hidden', !n);
+  }).catch(() => {});
+}
+
+// ================= Navigation =================
+function go(view) {
+  ['dashboard', 'bookings', 'hotels', 'refunds', 'users', 'logs'].forEach(v => $('view-' + v).classList.add('hidden'));
+  $('view-' + view).classList.remove('hidden');
+  document.querySelectorAll('.sidebar button').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  window.scrollTo({ top: 0 });
+  if (view === 'dashboard') loadDashboard();
+  if (view === 'bookings') { loadRecap(); loadBookings(1); fillHotelFilter(); }
+  if (view === 'hotels') loadHotels();
+  if (view === 'refunds') loadRefunds();
+  if (view === 'users') loadUsers();
+  if (view === 'logs') loadLogs();
+}
+document.querySelectorAll('.sidebar button').forEach(b => b.onclick = () => go(b.dataset.view));
+
+// ================= Dashboard =================
+async function loadDashboard() {
+  try {
+    const d = await api('GET', '/api/v1/admin/dashboard');
+    const t = d.totals;
+    $('stat-cards').innerHTML = [
+      ['🏨', 'Total Hotel', t.hotels + '', t.activeHotels + ' aktif'],
+      ['🛏️', 'Total Kamar', t.rooms + '', 'unit tipe kamar'],
+      ['📅', 'Total Booking', t.bookings + '', t.upcomingCheckIns + ' check-in 7 hari ke depan'],
+      ['💰', 'Pendapatan', fmt(t.revenue), 'pembayaran berhasil'],
+      ['👥', 'Pengguna', t.users + '', 'akun terdaftar'],
+      ['↩️', 'Refund Menunggu', d.pendingRefunds.count + '', fmt(d.pendingRefunds.amount) + ' dalam antrean']
+    ].map(([i, l, v, h]) => `<div class="stat"><div class="icon">${i}</div><div class="label">${l}</div><div class="value">${v}</div><div class="hint">${h}</div></div>`).join('');
+
+    $('chart-method').innerHTML = bars(d.revenueByMethod, x => x.method, x => x.amount, x => fmt(x.amount) + ' · ' + x.count + ' trx', 'alt');
+    $('chart-status').innerHTML = bars(d.bookingsByStatus, x => x.status, x => x.count, x => x.count + ' booking · ' + fmt(x.amount));
+
+    $('recent-bookings').innerHTML = d.recentBookings.length ? `
+      <table><thead><tr><th>No. Booking</th><th>Hotel</th><th>Tamu</th><th>Check-in</th><th>Total</th><th>Status</th></tr></thead>
+      <tbody>${d.recentBookings.map(b => `<tr>
+        <td><b>${esc(b.bookingNumber)}</b></td><td>${esc(b.hotelName)}</td><td>${esc(b.guestName)}</td>
+        <td>${fmtDate(b.checkIn)}</td><td>${fmt(b.totalAmount, b.currency)}</td><td>${tag(b.status)}</td></tr>`).join('')}</tbody></table>`
+      : '<div class="empty">Belum ada booking.</div>';
+  } catch (e) { toast(esc(e.message), true); }
+}
+
+function bars(items, label, value, right, alt) {
+  if (!items || !items.length) return '<div class="empty">Belum ada data.</div>';
+  const max = Math.max(...items.map(value)) || 1;
+  return items.map(x => `
+    <div class="bar-row">
+      <div class="lbl" title="${esc(label(x))}">${esc(label(x))}</div>
+      <div class="bar-track"><div class="bar-fill ${alt || ''}" style="width:${Math.max(2, value(x) / max * 100)}%"></div></div>
+      <div class="amt">${esc(right(x))}</div>
+    </div>`).join('');
+}
+
+// ================= Rekap Booking =================
+async function loadRecap() {
+  try {
+    const from = $('bk-from').value, to = $('bk-to').value;
+    const qs = new URLSearchParams();
+    if (from) qs.set('from', from); if (to) qs.set('to', to);
+    const d = await api('GET', '/api/v1/admin/bookings/recap?' + qs);
+    const t = d.totals;
+    $('recap-cards').innerHTML = [
+      ['📅', 'Total Booking', t.bookings + ''],
+      ['✅', 'Booking Berbayar', t.paid + ''],
+      ['💰', 'Pendapatan', fmt(t.revenue)],
+      ['🌙', 'Room-Nights', t.roomNights + ' malam'],
+      ['❌', 'Dibatalkan', t.cancelled + ''],
+      ['📊', 'Rata-rata / Booking', fmt(t.averageBookingValue)]
+    ].map(([i, l, v]) => `<div class="stat"><div class="icon">${i}</div><div class="label">${l}</div><div class="value">${v}</div></div>`).join('');
+
+    $('recap-hotel').innerHTML = d.byHotel.length ? `
+      <table><thead><tr><th>Hotel</th><th>Booking</th><th>Berbayar</th><th>Pendapatan</th></tr></thead>
+      <tbody>${d.byHotel.map(h => `<tr><td>${esc(h.hotelName)}</td><td>${h.bookings}</td><td>${h.paid}</td><td><b>${fmt(h.revenue)}</b></td></tr>`).join('')}</tbody></table>`
+      : '<div class="empty">Belum ada data.</div>';
+
+    $('recap-daily').innerHTML = bars(d.daily.slice(-14), x => x.date, x => x.revenue, x => fmt(x.revenue) + ' · ' + x.count, 'alt');
+  } catch (e) { toast(esc(e.message), true); }
+}
+
+async function loadBookings(page) {
+  state.bkPage = page;
+  try {
+    const qs = new URLSearchParams({ page, size: 10 });
+    ['q', 'status', 'hotelId', 'from', 'to'].forEach(k => {
+      const el = $('bk-' + (k === 'hotelId' ? 'hotel' : k === 'q' ? 'q' : k));
+      if (el && el.value) qs.set(k === 'hotelId' ? 'hotelId' : k, el.value);
+    });
+    const d = await api('GET', '/api/v1/admin/bookings?' + qs);
+    $('booking-table').innerHTML = d.items.length ? `
+      <table><thead><tr><th>No. Booking</th><th>Pelanggan</th><th>Hotel / Kamar</th><th>Periode</th><th>Tamu</th><th>Total</th><th>Status</th></tr></thead>
+      <tbody>${d.items.map(b => `<tr>
+        <td><b>${esc(b.bookingNumber)}</b><br><small style="color:var(--muted)">${fmtDt(b.createdAt)}</small></td>
+        <td>${esc(b.customerName)}<br><small style="color:var(--muted)">${esc(b.customerEmail)}</small></td>
+        <td>${esc(b.hotelName)}<br><small style="color:var(--muted)">${esc(b.roomName)}</small></td>
+        <td>${fmtDate(b.checkIn)} → ${fmtDate(b.checkOut)}</td>
+        <td>${esc(b.guestName)} (${b.guestCount})</td>
+        <td><b>${fmt(b.totalAmount, b.currency)}</b></td>
+        <td>${tag(b.status)}</td></tr>`).join('')}</tbody></table>`
+      : '<div class="empty">Tidak ada booking yang cocok dengan filter.</div>';
+    const pages = Math.max(1, Math.ceil(d.total / d.size));
+    $('booking-pager').innerHTML = `<span>${d.total} booking · halaman ${d.page}/${pages}</span>
+      <button class="btn btn-ghost btn-sm" ${d.page <= 1 ? 'disabled' : ''} onclick="loadBookings(${d.page - 1})">‹ Prev</button>
+      <button class="btn btn-ghost btn-sm" ${d.page >= pages ? 'disabled' : ''} onclick="loadBookings(${d.page + 1})">Next ›</button>`;
+  } catch (e) { toast(esc(e.message), true); }
+}
+
+async function fillHotelFilter() {
+  if (state.hotels.length === 0) {
+    try { state.hotels = (await api('GET', '/api/v1/admin/hotels')).items; } catch (e) { return; }
+  }
+  const sel = $('bk-hotel');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Semua hotel</option>' + state.hotels.map(h => `<option value="${esc(h.hotelId)}">${esc(h.name)}</option>`).join('');
+  sel.value = cur;
+}
+
+// ================= Data Hotel =================
+async function loadHotels() {
+  try {
+    const qs = new URLSearchParams();
+    if ($('ht-q').value.trim()) qs.set('q', $('ht-q').value.trim());
+    if ($('ht-active').value) qs.set('isActive', $('ht-active').value);
+    const d = await api('GET', '/api/v1/admin/hotels?' + qs);
+    state.hotels = d.items;
+    $('hotel-table').innerHTML = d.items.length ? `
+      <table><thead><tr><th>ID</th><th>Hotel</th><th>Kota</th><th>Rating</th><th>Kamar</th><th>Booking</th><th>Status</th><th>Aksi</th></tr></thead>
+      <tbody>${d.items.map(h => `<tr>
+        <td><code>${esc(h.hotelId)}</code></td>
+        <td><b>${esc(h.name)}</b><br><small style="color:var(--muted)">${esc(h.location)}</small><br>
+          <small style="color:var(--muted)">${(h.facilities || []).map(esc).join(' · ') || '-'}</small></td>
+        <td>${esc(h.city)}</td>
+        <td>⭐ ${Number(h.rating).toFixed(1)}</td>
+        <td>${h.roomCount} tipe<br><small style="color:var(--muted)">${h.totalRoomUnits} unit</small></td>
+        <td>${h.bookingCount}</td>
+        <td>${h.isActive ? tag('ACTIVE') : tag('BLOCKED').replace('BLOCKED', 'NONAKTIF')}</td>
+        <td style="white-space:nowrap">
+          <button class="btn btn-ghost btn-sm" onclick="openHotelForm('${esc(h.hotelId)}')">Edit</button>
+          <button class="btn btn-ghost btn-sm" onclick="openRooms('${esc(h.hotelId)}')">Kamar</button>
+          <button class="btn ${h.isActive ? 'btn-danger' : 'btn-primary'} btn-sm" onclick="toggleHotel('${esc(h.hotelId)}', ${!h.isActive})">${h.isActive ? 'Nonaktifkan' : 'Aktifkan'}</button>
+        </td></tr>`).join('')}</tbody></table>`
+      : '<div class="empty">Belum ada hotel. Klik <b>＋ Tambah Hotel</b> untuk menambah data.</div>';
+  } catch (e) { toast(esc(e.message), true); }
+}
+
+async function toggleHotel(id, isActive) {
+  try {
+    await api('POST', `/api/v1/admin/hotels/${id}/status`, { isActive });
+    toast(isActive ? 'Hotel diaktifkan.' : 'Hotel dinonaktifkan (tidak tampil di pencarian).');
+    loadHotels();
+  } catch (e) { toast(esc(e.message), true); }
+}
+
+function roomRowHtml(r = {}, idx = 0) {
+  return `<div class="room-row" data-room-row>
+    <input data-r="name" placeholder="Nama kamar" value="${esc(r.name || '')}">
+    <input data-r="capacity" type="number" min="1" placeholder="Kapasitas" value="${r.capacity || 2}">
+    <input data-r="price" type="number" min="1" placeholder="Harga/malam" value="${r.pricePerNight || ''}">
+    <input data-r="total" type="number" min="0" placeholder="Jumlah unit" value="${r.totalRooms ?? ''}">
+    <select data-r="policy"><option ${r.policy !== 'NonRefundable' ? 'selected' : ''}>Flexible</option><option ${r.policy === 'NonRefundable' ? 'selected' : ''}>NonRefundable</option></select>
+    <button class="close-x" style="position:static" onclick="this.closest('[data-room-row]').remove()">✕</button>
+  </div>`;
+}
+
+function addRoomRow(r) { $('hf-rooms').insertAdjacentHTML('beforeend', roomRowHtml(r)); }
+
+async function openHotelForm(hotelId) {
+  state.editHotelId = hotelId || null;
+  $('hotel-form-title').textContent = hotelId ? 'Edit Hotel' : 'Tambah Hotel';
+  $('hf-rooms').innerHTML = '';
+  if (hotelId) {
+    try {
+      const h = state.hotels.find(x => x.hotelId === hotelId) || (await api('GET', `/api/v1/admin/hotels?q=${encodeURIComponent(hotelId)}`)).items[0];
+      $('hf-name').value = h.name; $('hf-city').value = h.city; $('hf-location').value = h.location;
+      $('hf-rating').value = h.rating; $('hf-facilities').value = (h.facilities || []).join(', ');
+      (h.rooms || []).forEach(r => addRoomRow(r));
+    } catch (e) { toast(esc(e.message), true); return; }
+  } else {
+    $('hf-name').value = ''; $('hf-city').value = ''; $('hf-location').value = '';
+    $('hf-rating').value = '4.5'; $('hf-facilities').value = '';
+    addRoomRow();
+  }
+  $('modal-hotel').classList.remove('hidden');
+}
+
+async function saveHotel() {
+  const rooms = [...document.querySelectorAll('#hf-rooms [data-room-row]')].map(row => {
+    const g = k => row.querySelector(`[data-r="${k}"]`);
+    return {
+      name: g('name').value.trim(), capacity: +g('capacity').value,
+      pricePerNight: +g('price').value, totalRooms: +g('total').value, policy: g('policy').value
+    };
+  }).filter(r => r.name);
+  const body = {
+    name: $('hf-name').value.trim(), city: $('hf-city').value.trim(),
+    location: $('hf-location').value.trim(), rating: parseFloat($('hf-rating').value) || 0,
+    facilities: $('hf-facilities').value.split(',').map(s => s.trim()).filter(Boolean),
+    rooms: state.editHotelId ? undefined : rooms
+  };
+  try {
+    if (state.editHotelId) {
+      const h = await api('PUT', `/api/v1/admin/hotels/${state.editHotelId}`, body);
+      // sinkronkan kamar saat edit: tambah kamar baru yang diisi di form
+      for (const r of rooms) {
+        if (!(h.rooms || []).some(x => x.name === r.name))
+          await api('POST', `/api/v1/admin/hotels/${state.editHotelId}/rooms`, r);
+      }
+      toast('Hotel berhasil diperbarui. ✅');
+    } else {
+      const h = await api('POST', '/api/v1/admin/hotels', body);
+      toast(`Hotel <b>${esc(h.name)}</b> berhasil ditambahkan dengan ${h.rooms.length} tipe kamar. ✅`);
+    }
+    closeModal('modal-hotel'); loadHotels();
+  } catch (e) { toast(esc(e.message), true); }
+}
+
+// ---- Rooms management modal ----
+async function openRooms(hotelId) {
+  state.roomsHotelId = hotelId;
+  try {
+    const h = (await api('GET', '/api/v1/admin/hotels')).items.find(x => x.hotelId === hotelId);
+    $('rooms-title').textContent = 'Kelola Kamar — ' + h.name;
+    $('rooms-sub').textContent = h.location + ' · ' + h.roomCount + ' tipe kamar · ' + h.totalRoomUnits + ' unit';
+    $('rooms-list').innerHTML = (h.rooms || []).length ? `
+      <table><thead><tr><th>Nama</th><th>Kapasitas</th><th>Harga/malam</th><th>Unit</th><th>Policy</th><th>Aksi</th></tr></thead>
+      <tbody>${h.rooms.map(r => `<tr>
+        <td><b>${esc(r.name)}</b><br><code style="font-size:11px">${esc(r.roomId)}</code></td>
+        <td>${r.capacity} org</td><td>${fmt(r.pricePerNight, r.currency)}</td><td>${r.totalRooms}</td>
+        <td>${r.policy === 'NonRefundable' ? '<span class="tag t-red">NonRefundable</span>' : '<span class="tag t-green">Flexible</span>'}</td>
+        <td style="white-space:nowrap">
+          <button class="btn btn-ghost btn-sm" onclick="editRoomInline('${esc(r.roomId)}')">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteRoom('${esc(r.roomId)}')">Hapus</button>
+        </td></tr>`).join('')}</tbody></table>`
+      : '<div class="empty">Belum ada tipe kamar — tambahkan lewat form di bawah.</div>';
+    $('modal-rooms').classList.remove('hidden');
+  } catch (e) { toast(esc(e.message), true); }
+}
+
+function editRoomInline(roomId) {
+  const h = state.hotels.find(x => x.hotelId === state.roomsHotelId);
+  const r = (h?.rooms || []).find(x => x.roomId === roomId);
+  if (!r) return;
+  const name = prompt('Nama kamar:', r.name); if (name === null) return;
+  const cap = prompt('Kapasitas (orang):', r.capacity); if (cap === null) return;
+  const price = prompt('Harga per malam (IDR):', r.pricePerNight); if (price === null) return;
+  const total = prompt('Jumlah unit:', r.totalRooms); if (total === null) return;
+  api('PUT', `/api/v1/admin/rooms/${roomId}`, {
+    name: name.trim(), capacity: +cap, pricePerNight: +price, totalRooms: +total,
+    currency: r.currency, policy: r.policy, penaltyRate: r.penaltyRate
+  }).then(() => { toast('Kamar diperbarui. ✅'); openRooms(state.roomsHotelId); loadHotels(); })
+   .catch(e => toast(esc(e.message), true));
+}
+
+function deleteRoom(roomId) {
+  if (!confirm('Hapus tipe kamar ini?')) return;
+  api('DELETE', `/api/v1/admin/rooms/${roomId}`)
+    .then(() => { toast('Kamar dihapus.'); openRooms(state.roomsHotelId); loadHotels(); })
+    .catch(e => toast(esc(e.message), true));
+}
+
+function addRoomToHotel() {
+  api('POST', `/api/v1/admin/hotels/${state.roomsHotelId}/rooms`, {
+    name: $('nr-name').value.trim(), capacity: +$('nr-cap').value,
+    pricePerNight: +$('nr-price').value, totalRooms: +$('nr-total').value, policy: $('nr-policy').value
+  }).then(() => {
+    toast('Tipe kamar ditambahkan. ✅');
+    ['nr-name', 'nr-cap', 'nr-price', 'nr-total'].forEach(i => $(i).value = '');
+    openRooms(state.roomsHotelId); loadHotels();
+  }).catch(e => toast(esc(e.message), true));
+}
+
+// ================= Refund =================
+async function loadRefunds() {
+  try {
+    const rs = await api('GET', '/api/v1/refunds');
+    $('refund-table').innerHTML = rs.length ? `
+      <table><thead><tr><th>No. Booking</th><th>Pelanggan</th><th>Dibayar</th><th>Penalti</th><th>Nilai Refund</th><th>Status</th><th>Dibuat</th><th>Aksi</th></tr></thead>
+      <tbody>${rs.map(r => `<tr>
+        <td><b>${esc(r.bookingNumber)}</b></td><td>${esc(r.customerName)}</td>
+        <td>${fmt(r.totalPaid, r.currency)}</td><td>${fmt(r.penaltyAmount, r.currency)}</td>
+        <td><b>${fmt(r.refundAmount, r.currency)}</b></td>
+        <td>${tag(r.status)}${r.reason ? `<br><small style="color:var(--muted)">${esc(r.reason)}</small>` : ''}</td>
+        <td>${fmtDt(r.createdAt)}</td>
+        <td style="white-space:nowrap">${refundActions(r)}</td></tr>`).join('')}</tbody></table>`
+      : '<div class="empty">Belum ada refund.</div>';
+  } catch (e) { toast(esc(e.message), true); }
+}
+function refundActions(r) {
+  if (r.status === 'PENDING_APPROVAL')
+    return `<button class="btn btn-primary btn-sm" onclick="refundAct('${r.refundId}','approve')">Setujui</button>
+            <button class="btn btn-danger btn-sm" onclick="refundAct('${r.refundId}','reject')">Tolak</button>`;
+  if (r.status === 'APPROVED' || r.status === 'PROCESSING')
+    return `<button class="btn btn-orange btn-sm" onclick="refundAct('${r.refundId}','execute')">Eksekusi</button>`;
+  return '-';
+}
+function refundAct(id, act) {
+  let body;
+  if (act === 'reject') {
+    const reason = prompt('Alasan penolakan refund:'); if (!reason) return;
+    body = { reason };
+  }
+  api('POST', `/api/v1/refunds/${id}/${act}`, body || {})
+    .then(() => { toast('Refund ' + act + ' berhasil. ✅'); loadRefunds(); enterAppBadge(); })
+    .catch(e => toast(esc(e.message), true));
+}
+function enterAppBadge() {
+  api('GET', '/api/v1/refunds').then(rs => {
+    const n = rs.filter(r => r.status === 'PENDING_APPROVAL').length;
+    $('badge-refund').textContent = n; $('badge-refund').classList.toggle('hidden', !n);
+  }).catch(() => {});
+}
+
+// ================= Pengguna =================
+async function loadUsers() {
+  try {
+    const qs = new URLSearchParams();
+    if ($('us-q').value.trim()) qs.set('q', $('us-q').value.trim());
+    const d = await api('GET', '/api/v1/admin/users?' + qs);
+    $('user-table').innerHTML = d.items.length ? `
+      <table><thead><tr><th>Email</th><th>Nama</th><th>Role</th><th>Status</th><th>Login Terakhir</th><th>Terdaftar</th><th>Aksi</th></tr></thead>
+      <tbody>${d.items.map(u => `<tr>
+        <td><b>${esc(u.email)}</b></td><td>${esc(u.fullName || '-')}${u.phoneNumber ? `<br><small style="color:var(--muted)">${esc(u.phoneNumber)}</small>` : ''}</td>
+        <td><span class="tag t-blue">${esc(u.role)}</span></td>
+        <td>${tag(u.status)}</td>
+        <td>${fmtDt(u.lastLoginAt)}</td>
+        <td>${fmtDate(u.createdAt)}</td>
+        <td style="white-space:nowrap">
+          ${u.status !== 'ACTIVE' && u.role !== 'Admin' ? `<button class="btn btn-primary btn-sm" onclick="setUser('${u.customerId}','Active')">Aktifkan</button>` : ''}
+          ${u.status === 'ACTIVE' && u.role !== 'Admin' ? `<button class="btn btn-danger btn-sm" onclick="setUser('${u.customerId}','Blocked')">Blokir</button>` : ''}
+          ${u.role === 'Admin' ? '<small style="color:var(--muted)">dilindungi</small>' : ''}
+        </td></tr>`).join('')}</tbody></table>`
+      : '<div class="empty">Tidak ada pengguna.</div>';
+  } catch (e) { toast(esc(e.message), true); }
+}
+function setUser(id, status) {
+  if (status === 'Blocked' && !confirm('Blokir akun ini? Pengguna tidak akan bisa login.')) return;
+  api('POST', `/api/v1/admin/users/${id}/status`, { status })
+    .then(() => { toast('Status pengguna diperbarui.'); loadUsers(); })
+    .catch(e => toast(esc(e.message), true));
+}
+
+// ================= Audit & Notifikasi =================
+async function loadLogs() {
+  try {
+    const a = await api('GET', '/api/v1/admin/audits?size=30');
+    $('audit-table').innerHTML = a.items.length ? `
+      <table><thead><tr><th>Waktu</th><th>Entitas</th><th>Aksi</th><th>Perubahan</th><th>Aktor</th></tr></thead>
+      <tbody>${a.items.map(x => `<tr>
+        <td>${fmtDt(x.at)}</td><td>${esc(x.entity)}</td><td><b>${esc(x.action)}</b></td>
+        <td><small>${esc(x.oldValue || '-')} → ${esc(x.newValue || '-')}</small></td>
+        <td><code style="font-size:11px">${esc(x.actor.slice(0, 8))}…</code></td></tr>`).join('')}</tbody></table>`
+      : '<div class="empty">Belum ada audit log.</div>';
+    const n = await api('GET', '/api/v1/admin/notifications?size=30');
+    $('notif-table').innerHTML = n.items.length ? `
+      <table><thead><tr><th>Waktu</th><th>Tipe</th><th>Penerima</th><th>Subjek</th><th>Status</th></tr></thead>
+      <tbody>${n.items.map(x => `<tr>
+        <td>${fmtDt(x.createdAt)}</td><td>${esc(x.type)}</td><td>${esc(x.recipient)}</td>
+        <td>${esc(x.subject)}</td>
+        <td>${x.status === 'Sent' ? '<span class="tag t-green">SENT</span>' : x.status === 'Retrying' ? '<span class="tag t-amber">RETRYING</span>' : '<span class="tag t-red">FAILED</span>'}
+          ${x.lastError ? `<br><small style="color:var(--red)">${esc(x.lastError)}</small>` : ''}</td></tr>`).join('')}</tbody></table>`
+      : '<div class="empty">Belum ada notifikasi.</div>';
+  } catch (e) { toast(esc(e.message), true); }
+}
+
+// ================= Boot =================
+(async function boot() {
+  if (!token) return;
+  if (!STAFF.includes(role)) {
+    token = ''; role = '';
+    ['hk_token', 'hk_role'].forEach(k => localStorage.removeItem(k));
+    toast('Akun ini bukan akun staf. Masuk dengan akun Admin/Finance/Management.', true);
+    return;
+  }
+  try {
+    await api('GET', '/api/v1/admin/dashboard'); // validasi token & role
+    enterApp();
+  } catch (e) { /* api() sudah menangani logout 401 */ }
+})();
+</script>
+</body>
+</html>
