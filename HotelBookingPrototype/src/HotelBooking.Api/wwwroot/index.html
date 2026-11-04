@@ -50,6 +50,10 @@
 
   /* ---------- Search card ---------- */
   .search-card { max-width:1100px; margin:36px auto 0; background:#fff; border-radius:16px; box-shadow:0 8px 30px rgba(15,40,90,.16); padding:18px 20px 20px; position:relative; z-index:2; }
+
+  /* ---------- Sticky search bar (halaman hasil pencarian) ---------- */
+  #searchbar-host { position:sticky; top:var(--header-h, 60px); z-index:45; background:var(--bg); padding:12px 0 14px; }
+  #searchbar-host .search-card { margin:0 auto; box-shadow:0 6px 22px rgba(15,40,90,.14); }
   .search-tabs { display:flex; gap:6px; margin-bottom:14px; }
   .search-tabs span { padding:7px 16px; border-radius:999px; font-size:13px; background:var(--blue-soft); color:var(--blue); font-weight:600; }
   .search-tabs span.dim { background:#f1f4f8; color:var(--muted); font-weight:500; }
@@ -66,6 +70,10 @@
   .block-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px; }
   .block-head h2 { font-size:21px; }
   .block-head .sub { color:var(--muted); font-size:13.5px; }
+  .sort-wrap { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .sort-sel { border:1.5px solid var(--border); border-radius:9px; padding:8px 11px; font-size:13px; font-weight:600; color:var(--text); background:#fff; cursor:pointer; }
+  .sort-sel:focus { outline:none; border-color:var(--blue); }
+  label .req { color:var(--red); margin-left:2px; }
   .chips { display:flex; gap:9px; flex-wrap:wrap; margin:18px 0 4px; }
   .chip { padding:8px 16px; background:#fff; border:1.5px solid var(--border); border-radius:999px; font-size:13px; cursor:pointer; font-weight:600; color:var(--text); }
   .chip:hover { border-color:var(--blue); color:var(--blue); }
@@ -85,6 +93,19 @@
   .price-row { margin-top:10px; display:flex; align-items:flex-end; justify-content:space-between; gap:8px; }
   .price { color:var(--orange); font-size:18px; font-weight:800; }
   .price small { color:var(--muted); font-size:11.5px; font-weight:500; }
+
+  /* ---------- Hasil pencarian: listing vertikal ---------- */
+  #search-grid { display:flex; flex-direction:column; gap:14px; }
+  #search-grid .hotel-card { display:flex; align-items:stretch; }
+  #search-grid .hotel-card:hover { transform:translateY(-2px); }
+  #search-grid .thumb { width:230px; min-height:172px; height:auto; flex:none; align-self:stretch; }
+  #search-grid .body { flex:1; display:grid; grid-template-columns:1fr auto; grid-template-areas:"nm pr" "rt pr" "fc pr"; align-items:center; column-gap:24px; padding:16px 20px; }
+  #search-grid .body h3 { grid-area:nm; align-self:end; font-size:16.5px; }
+  #search-grid .body .rating { grid-area:rt; margin:6px 0; }
+  #search-grid .body .facilities { grid-area:fc; align-self:start; }
+  #search-grid .body .price-row { grid-area:pr; margin:0; flex-direction:column; align-items:flex-end; gap:9px; }
+  #search-grid .body .price { text-align:right; white-space:nowrap; }
+  #search-grid .empty { width:100%; }
 
   /* ---------- Detail ---------- */
   .detail-hero { height:210px; border-radius:16px; display:flex; align-items:flex-end; padding:22px; font-size:64px; position:relative; overflow:hidden; }
@@ -169,6 +190,11 @@
     .hero h1 { font-size:25px; }
     .nav .links { display:none; }
     .search-grid .btn { width:100%; }
+    #search-grid .hotel-card { flex-direction:column; }
+    #search-grid .thumb { width:100%; height:150px; min-height:0; }
+    #search-grid .body { grid-template-columns:1fr; grid-template-areas:"nm" "rt" "fc" "pr"; row-gap:4px; }
+    #search-grid .body .price-row { flex-direction:row; align-items:flex-end; justify-content:space-between; width:100%; margin-top:10px; }
+    #search-grid .body .price { text-align:left; }
   }
 </style>
 </head>
@@ -211,12 +237,12 @@
     <div class="search-grid">
       <div class="field" style="flex:1.4">
         <label>Destinasi / Nama Hotel</label>
-        <input id="s-dest" list="cities" value="Jakarta" placeholder="Kota atau nama hotel">
+        <input id="s-dest" list="cities" value="Jakarta" placeholder="Kota atau nama hotel (kosongkan untuk semua)">
         <datalist id="cities"><option>Jakarta</option><option>Bali</option><option>Bandung</option></datalist>
       </div>
-      <div class="field"><label>Check-in</label><input id="s-in" type="date"></div>
-      <div class="field"><label>Check-out</label><input id="s-out" type="date"></div>
-      <div class="field" style="flex:.7"><label>Tamu</label><input id="s-guest" type="number" min="1" value="2"></div>
+      <div class="field"><label>Check-in <span class="req">*</span></label><input id="s-in" type="date"></div>
+      <div class="field"><label>Check-out <span class="req">*</span></label><input id="s-out" type="date"></div>
+      <div class="field" style="flex:.7"><label>Tamu</label><input id="s-guest" type="number" min="1" value="2" placeholder="Semua"></div>
       <button class="btn btn-orange" onclick="doSearch()">🔍 Cari Hotel</button>
     </div>
     <div class="chips">
@@ -256,10 +282,19 @@
       <div class="step"><div class="n">3</div>Bayar</div><div class="step-line"></div>
       <div class="step"><div class="n">4</div>Selesai</div>
     </div>
+    <div id="searchbar-host"></div>
     <section class="block">
       <div class="block-head">
         <h2>Hasil Pencarian</h2>
-        <span class="sub" id="search-sub"></span>
+        <div class="sort-wrap">
+          <span class="sub" id="search-sub"></span>
+          <select id="sort-by" class="sort-sel" onchange="applySort()">
+            <option value="relevan">Urutkan: Relevan</option>
+            <option value="price-asc">Harga Terendah</option>
+            <option value="price-desc">Harga Tertinggi</option>
+            <option value="popular">Popularitas</option>
+          </select>
+        </div>
       </div>
       <div class="grid" id="search-grid"></div>
     </section>
@@ -293,7 +328,7 @@
         <h2>Data Tamu</h2>
         <p class="muted">Pastikan nama sesuai identitas (KTP/Paspor) untuk check-in.</p>
         <div class="field" style="margin-top:14px">
-          <label>Nama Tamu</label>
+          <label>Nama Tamu <span class="req">*</span></label>
           <input id="b-guest" placeholder="Contoh: Budi Santoso">
         </div>
         <div class="field">
@@ -354,7 +389,7 @@
       <div class="block-head"><h2>Verifikasi E-Ticket</h2><span class="sub">Untuk petugas hotel — masukkan isi QR code</span></div>
       <div class="panel">
         <div class="field">
-          <label>Kode QR (isi)</label>
+          <label>Kode QR (isi) <span class="req">*</span></label>
           <input id="verify-code" placeholder="BK-YYYYMMDD-XXXXXX.xxxxxxxx…">
         </div>
         <button class="btn btn-primary" style="margin-top:12px" onclick="verifyTicket()">Verifikasi</button>
@@ -389,22 +424,22 @@
     <div id="auth-login">
       <h3>Selamat datang kembali 👋</h3>
       <p class="muted">Masuk untuk memesan dan mengelola booking kamu.</p>
-      <div class="field"><label>Email / No. HP</label><input id="login-email" value="customer@demo.com"></div>
-      <div class="field"><label>Password</label><input id="login-pass" type="password" value="Demo1234!"></div>
+      <div class="field"><label>Email / No. HP <span class="req">*</span></label><input id="login-email" value="customer@demo.com"></div>
+      <div class="field"><label>Password <span class="req">*</span></label><input id="login-pass" type="password" value="Demo1234!"></div>
       <button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="login()">Masuk</button>
     </div>
     <div id="auth-register" class="hidden">
       <h3>Buat akun baru 🎉</h3>
       <p class="muted">Gratis, hanya butuh satu menit. Verifikasi OTP dikirim ke email.</p>
-      <div class="field"><label>Email</label><input id="reg-email" placeholder="nama@email.com"></div>
-      <div class="field"><label>Password (min. 8 karakter)</label><input id="reg-pass" type="password"></div>
-      <div class="field"><label>Nama Lengkap</label><input id="reg-name"></div>
+      <div class="field"><label>Email <span class="req">*</span></label><input id="reg-email" placeholder="nama@email.com"></div>
+      <div class="field"><label>Password (min. 8 karakter) <span class="req">*</span></label><input id="reg-pass" type="password"></div>
+      <div class="field"><label>Nama Lengkap <span class="req">*</span></label><input id="reg-name"></div>
       <div class="field"><label>No. HP (opsional)</label><input id="reg-phone"></div>
       <button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="register()">Daftar</button>
       <div id="otp-box" class="hidden" style="margin-top:14px;background:#f4f8fd;border-radius:10px;padding:13px">
         <p class="muted">Prototype: email belum aktif, jadi kode OTP ditampilkan langsung di sini.</p>
         <div id="otp-shown" class="qr-box hidden" style="margin:9px 0 0">Kode OTP kamu: <b></b></div>
-        <div class="field"><label>Kode OTP (6 digit)</label><input id="otp-code" placeholder="123456"></div>
+        <div class="field"><label>Kode OTP (6 digit) <span class="req">*</span></label><input id="otp-code" placeholder="123456"></div>
         <div style="display:flex;gap:8px;margin-top:10px">
           <button class="btn btn-primary btn-sm" onclick="verifyOtp()">Verifikasi</button>
           <button class="btn btn-soft btn-sm" onclick="resendOtp()">Kirim Ulang</button>
@@ -487,9 +522,27 @@ function thumbStyle(city) { return CITY_BG[city] || 'linear-gradient(135deg,#5b7
 function cityEmoji(city) { return CITY_EMOJI[city] || '🏨'; }
 
 // ================= Navigation =================
+function placeSearchCard(where) {
+  const card = document.querySelector('.search-card');
+  if (!card) return;
+  if (where === 'search') {
+    if (card.parentElement.id !== 'searchbar-host') $('searchbar-host').appendChild(card);
+  } else {
+    const hero = document.querySelector('#view-home .hero');
+    if (card.parentElement !== hero) hero.appendChild(card);
+  }
+}
+function syncHeaderH() {
+  const h = document.querySelector('header');
+  if (h) document.documentElement.style.setProperty('--header-h', h.offsetHeight + 'px');
+}
+syncHeaderH();
+window.addEventListener('resize', syncHeaderH);
+
 function go(view) {
   ['home', 'search', 'detail', 'booking', 'payment', 'history', 'refunds', 'verify'].forEach(v => $('view-' + v).classList.add('hidden'));
   $('view-' + view).classList.remove('hidden');
+  placeSearchCard(view === 'search' ? 'search' : 'home');
   document.querySelectorAll('#nav-links button').forEach(b => b.classList.toggle('active', b.dataset.view === view ||
     (view === 'search' && b.dataset.view === 'home') ||
     (['detail', 'booking', 'payment'].includes(view) && b.dataset.view === 'home')));
@@ -580,12 +633,12 @@ async function logout() {
 // ================= Search =================
 function readSearchParams() {
   const checkIn = $('s-in').value, checkOut = $('s-out').value;
-  if (!$('s-dest').value.trim()) { toast('Isi destinasi terlebih dahulu', true); return null; }
   if (!checkIn || !checkOut || new Date(checkOut) <= new Date(checkIn)) { toast('Tanggal check-out harus setelah check-in', true); return null; }
+  const gRaw = $('s-guest').value.trim();
   return {
     destination: $('s-dest').value.trim(),
     checkIn, checkOut,
-    guestCount: Math.max(1, parseInt($('s-guest').value) || 1)
+    guestCount: gRaw === '' ? null : Math.max(1, parseInt(gRaw) || 1)
   };
 }
 function quickSearch(city) { $('s-dest').value = city; doSearch(); }
@@ -595,20 +648,30 @@ async function doSearch() {
   if (!p) return;
   state.searchParams = p;
   go('search');
-  $('search-sub').textContent = `${p.destination} · ${p.checkIn} s/d ${p.checkOut} · ${p.guestCount} tamu`;
+  $('search-sub').textContent = `${p.destination || 'Semua destinasi'} · ${p.checkIn} s/d ${p.checkOut} · ${p.guestCount ? p.guestCount + ' tamu' : 'semua tamu'}`;
   $('search-grid').innerHTML = '<div class="empty"><span class="ico">⏳</span>Mencari hotel terbaik…</div>';
   try {
-    const hotels = await api('GET', '/api/v1/hotels/search?' + new URLSearchParams(p));
+    const hotels = await api('GET', '/api/v1/hotels/search?' + new URLSearchParams({ destination: p.destination, checkIn: p.checkIn, checkOut: p.checkOut, guestCount: p.guestCount || 1 }));
     state.hotels = hotels;
-    renderHotels('search-grid', hotels);
+    applySort();
   } catch (e) {
     $('search-grid').innerHTML = `<div class="empty"><span class="ico">😕</span>${esc(e.message)}</div>`;
   }
 }
 
+function applySort() {
+  const key = ($('sort-by') || {}).value || 'relevan';
+  const list = (state.hotels || []).slice();
+  const price = h => (h.rooms && h.rooms.length ? Math.min(...h.rooms.map(r => r.pricePerNight)) : 0);
+  if (key === 'price-asc') list.sort((a, b) => price(a) - price(b));
+  else if (key === 'price-desc') list.sort((a, b) => price(b) - price(a));
+  else if (key === 'popular') list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+  renderHotels('search-grid', list);
+}
+
 function renderHotels(targetId, hotels) {
   const el = $(targetId);
-  if (!hotels.length) { el.innerHTML = '<div class="empty"><span class="ico">🔍</span>Tidak ada hotel yang cocok. Coba destinasi lain.</div>'; return; }
+  if (!hotels.length) { el.innerHTML = '<div class="empty"><span class="ico">🔍</span>Tidak ada hotel yang cocok. Coba destinasi lain atau ubah tanggal &amp; jumlah tamu.</div>'; return; }
   el.innerHTML = hotels.map(h => {
     const cheapest = h.rooms && h.rooms.length ? Math.min(...h.rooms.map(r => r.pricePerNight)) : 0;
     const cur = h.rooms && h.rooms.length ? h.rooms[0].currency : 'IDR';
@@ -638,7 +701,7 @@ async function openDetail(hotelId) {
   $('detail-body').innerHTML = '<div class="empty"><span class="ico">⏳</span>Memuat detail hotel…</div>';
   try {
     const h = await api('GET', `/api/v1/hotels/${encodeURIComponent(hotelId)}?` + new URLSearchParams({
-      checkIn: p.checkIn, checkOut: p.checkOut, guestCount: p.guestCount
+      checkIn: p.checkIn, checkOut: p.checkOut, guestCount: p.guestCount || 1
     }));
     state.detail = h;
     const n = nightsBetween(p.checkIn, p.checkOut);
@@ -656,7 +719,7 @@ async function openDetail(hotelId) {
       </div>
       <div class="panel" style="margin-top:14px">
         <h2>Pilih Kamar</h2>
-        <p class="muted">Periode: ${p.checkIn} s/d ${p.checkOut} (${n} malam) · ${p.guestCount} tamu</p>
+        <p class="muted">Periode: ${p.checkIn} s/d ${p.checkOut} (${n} malam) · ${p.guestCount ? p.guestCount + ' tamu' : 'semua tamu'}</p>
         ${(h.rooms || []).map(r => `
           <div class="room-item">
             <div class="info">
@@ -681,7 +744,7 @@ async function openDetail(hotelId) {
 function pickRoom(sel) {
   if (!token) { toast('Silakan masuk terlebih dahulu untuk memesan', true); openAuth('login'); return; }
   state.room = sel;
-  $('b-guestcount').value = state.searchParams ? state.searchParams.guestCount : 2;
+  $('b-guestcount').value = (state.searchParams && state.searchParams.guestCount) || 2;
   $('book-summary').innerHTML = summaryHtml(sel.hotelName, sel.roomName,
     (state.searchParams || {}).checkIn || $('s-in').value, (state.searchParams || {}).checkOut || $('s-out').value,
     sel.price, sel.currency);

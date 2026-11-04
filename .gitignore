@@ -11,3 +11,6 @@ obj/
 # Misc
 Thumbs.db
 .DS_Store
+
+# Office lock/temp files
+~$*

@@ -13,19 +13,21 @@ public class HotelService
 
     public List<HotelSearchResult> Search(string? destination, DateOnly? checkIn, DateOnly? checkOut, int? guestCount)
     {
-        Validate(destination, checkIn, checkOut, guestCount);
+        Validate(checkIn, checkOut, guestCount);
         var ci = checkIn!.Value;
         var co = checkOut!.Value;
-        var gc = guestCount!.Value;
+        var gc = guestCount ?? 0; // null = tanpa filter kapasitas (tampilkan semua)
 
         // Stub provider (UAT-SRH-07): destinasi "SimError" mensimulasikan Hotel API provider error/timeout.
-        if (destination!.Trim().Equals("SimError", StringComparison.OrdinalIgnoreCase))
+        if (!string.IsNullOrWhiteSpace(destination) &&
+            destination.Trim().Equals("SimError", StringComparison.OrdinalIgnoreCase))
             throw new BusinessException(502, "PROVIDER_ERROR",
                 "Ketersediaan tidak dapat dikonfirmasi saat ini. Silakan coba lagi nanti.");
 
         var results = new List<HotelSearchResult>();
         foreach (var hotel in _db.Hotels.Values.Where(h =>
-                     h.IsActive && (h.City.Contains(destination, StringComparison.OrdinalIgnoreCase) ||
+                     h.IsActive && (string.IsNullOrWhiteSpace(destination) ||
+                                    h.City.Contains(destination, StringComparison.OrdinalIgnoreCase) ||
                                     h.Name.Contains(destination, StringComparison.OrdinalIgnoreCase))))
         {
             var rooms = _db.Rooms.Values
@@ -45,7 +47,7 @@ public class HotelService
 
     public HotelSearchResult Get(string hotelId, DateOnly? checkIn, DateOnly? checkOut, int? guestCount)
     {
-        Validate("x", checkIn, checkOut, guestCount);
+        Validate(checkIn, checkOut, guestCount);
         var hotel = _db.Hotels.GetValueOrDefault(hotelId)
             ?? throw new BusinessException(404, "NOT_FOUND", "Hotel tidak ditemukan.");
         var rooms = _db.Rooms.Values
@@ -56,18 +58,17 @@ public class HotelService
         return new HotelSearchResult(hotel.HotelId, hotel.Name, hotel.City, hotel.Location, hotel.Rating, hotel.Facilities, rooms);
     }
 
-    /// <summary>Validasi parameter pencarian: seluruh field wajib diisi (UAT-SRH-02/03/04).</summary>
-    private static void Validate(string? destination, DateOnly? checkIn, DateOnly? checkOut, int? guestCount)
+    /// <summary>Validasi parameter pencarian: tanggal wajib diisi; destinasi opsional (kosong = semua destinasi);
+    /// jumlah tamu opsional (kosong = tampilkan semua hotel/kamar tanpa filter kapasitas).</summary>
+    private static void Validate(DateOnly? checkIn, DateOnly? checkOut, int? guestCount)
     {
-        if (string.IsNullOrWhiteSpace(destination))
-            throw new BusinessException(400, "VALIDATION_ERROR", "Destination wajib diisi.");
         if (checkIn is null)
             throw new BusinessException(400, "VALIDATION_ERROR", "Tanggal check-in wajib diisi.");
         if (checkOut is null)
             throw new BusinessException(400, "VALIDATION_ERROR", "Tanggal check-out wajib diisi.");
         if (checkOut <= checkIn)
             throw new BusinessException(400, "VALIDATION_ERROR", "Tanggal check-out harus setelah check-in.");
-        if (guestCount is null or <= 0)
+        if (guestCount is <= 0)
             throw new BusinessException(400, "VALIDATION_ERROR", "Jumlah guest harus angka positif yang valid.");
     }
 
