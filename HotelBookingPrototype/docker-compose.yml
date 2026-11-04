@@ -1,0 +1,13 @@
+# HotelKu — deploy ke VM training (1 container: API + frontend statis wwwroot)
+services:
+  api:
+    build: ./src/HotelBooking.Api
+    container_name: hotelku-api
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+      # Development supaya /swagger aktif — ganti Production kalau sudah bukan demo
+      - ASPNETCORE_ENVIRONMENT=Development
+    # hidup lagi otomatis pagi hari setelah VM mati malam
+    restart: unless-stopped
