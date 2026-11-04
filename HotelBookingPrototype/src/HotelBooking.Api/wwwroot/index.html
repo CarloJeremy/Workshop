@@ -41,15 +41,15 @@
   .btn-sm { padding:8px 14px; font-size:13px; border-radius:8px; }
 
   /* ---------- Hero ---------- */
-  .hero { background:url('images/beach-bg.jpg') center 58%/cover no-repeat; padding:56px 20px 104px; position:relative; overflow:hidden; }
+  .hero { background:url('images/beach-bg.jpg') center 58%/cover no-repeat; padding:56px 20px 44px; position:relative; overflow:hidden; }
   .hero::after { content:""; position:absolute; inset:0; background:
-      linear-gradient(180deg, rgba(10,28,55,.46) 0%, rgba(10,28,55,.16) 38%, rgba(10,28,55,.34) 100%); }
+      linear-gradient(180deg, rgba(10,28,55,.50) 0%, rgba(10,28,55,.28) 38%, rgba(10,28,55,.36) 100%); }
   .hero-inner { max-width:1100px; margin:0 auto; position:relative; z-index:1; text-align:center; }
-  .hero h1 { color:#fff; font-size:38px; line-height:1.22; max-width:760px; margin:0 auto; text-shadow:0 2px 16px rgba(5,20,45,.5); }
-  .hero p { color:#eaf3ff; margin-top:12px; font-size:17px; text-shadow:0 1px 10px rgba(5,20,45,.45); }
+  .hero h1 { color:#fff; font-size:38px; line-height:1.22; max-width:760px; margin:0 auto; text-shadow:0 1px 3px rgba(5,20,45,.65), 0 3px 20px rgba(5,20,45,.55); }
+  .hero p { color:#eaf3ff; margin-top:12px; font-size:17px; text-shadow:0 1px 3px rgba(5,20,45,.6), 0 2px 12px rgba(5,20,45,.5); }
 
   /* ---------- Search card ---------- */
-  .search-card { max-width:1100px; margin:-64px auto 0; background:#fff; border-radius:16px; box-shadow:0 8px 30px rgba(15,40,90,.16); padding:18px 20px 20px; position:relative; z-index:2; }
+  .search-card { max-width:1100px; margin:36px auto 0; background:#fff; border-radius:16px; box-shadow:0 8px 30px rgba(15,40,90,.16); padding:18px 20px 20px; position:relative; z-index:2; }
   .search-tabs { display:flex; gap:6px; margin-bottom:14px; }
   .search-tabs span { padding:7px 16px; border-radius:999px; font-size:13px; background:var(--blue-soft); color:var(--blue); font-weight:600; }
   .search-tabs span.dim { background:#f1f4f8; color:var(--muted); font-weight:500; }
@@ -200,9 +200,8 @@
       <h1>Mau nginap di mana? Cari hotelnya di sini.</h1>
       <p>Pesan hotel mudah — pembayaran aman, e-ticket langsung dikirim.</p>
     </div>
-  </div>
 
-  <div class="search-card">
+    <div class="search-card">
     <div class="search-tabs">
       <span>🏨 Hotel</span>
       <span class="dim">Villa</span>
@@ -224,6 +223,7 @@
       <div class="chip" onclick="quickSearch('Jakarta')">📍 Jakarta</div>
       <div class="chip" onclick="quickSearch('Bali')">🏝️ Bali</div>
       <div class="chip" onclick="quickSearch('Bandung')">⛰️ Bandung</div>
+    </div>
     </div>
   </div>
 

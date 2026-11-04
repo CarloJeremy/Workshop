@@ -109,17 +109,17 @@
 
   .hero {
     background:url('assets/beach-bg.jpg') center 58%/cover no-repeat;
-    padding:42px 22px 88px; position:relative; overflow:hidden; text-align:center;
+    padding:42px 22px 34px; position:relative; overflow:hidden; text-align:center;
   }
   .hero::after {
     content:""; position:absolute; inset:0;
-    background:linear-gradient(180deg, rgba(10,28,55,.46) 0%, rgba(10,28,55,.16) 38%, rgba(10,28,55,.34) 100%);
+    background:linear-gradient(180deg, rgba(10,28,55,.50) 0%, rgba(10,28,55,.28) 38%, rgba(10,28,55,.36) 100%);
   }
-  .hero h1 { color:#fff; font-size:28px; line-height:1.22; max-width:640px; margin:0 auto; letter-spacing:-.01em; text-shadow:0 2px 16px rgba(5,20,45,.5); }
-  .hero p { color:#eaf3ff; margin-top:9px; font-size:14.5px; text-shadow:0 1px 10px rgba(5,20,45,.45); }
+  .hero h1 { color:#fff; font-size:28px; line-height:1.22; max-width:640px; margin:0 auto; letter-spacing:-.01em; text-shadow:0 1px 3px rgba(5,20,45,.65), 0 3px 20px rgba(5,20,45,.55); }
+  .hero p { color:#eaf3ff; margin-top:9px; font-size:14.5px; text-shadow:0 1px 3px rgba(5,20,45,.6), 0 2px 12px rgba(5,20,45,.5); }
 
   .search-card {
-    max-width:1052px; margin:-52px auto 0; position:relative; z-index:2;
+    max-width:1052px; margin:30px auto 0; position:relative; z-index:2; text-align:left;
     background:#fff; border-radius:14px; box-shadow:var(--shadow); padding:18px 20px 20px;
   }
   .search-tabs { display:flex; gap:6px; margin-bottom:13px; }
@@ -394,9 +394,8 @@
         <div class="hero">
           <h1>Menginap jadi mudah, di mana saja.</h1>
           <p>Cari hotel, bandingkan harga, dan dapatkan E-Ticket langsung.</p>
-        </div>
 
-        <div class="search-card">
+          <div class="search-card">
           <div class="search-tabs">
             <span>Hotel</span><span class="dim">Villa</span><span class="dim">Apartemen</span>
           </div>
@@ -414,6 +413,7 @@
               <div class="val">2 Tamu · 1 Kamar</div>
             </div>
             <div class="btn btn-orange">🔍 Cari</div>
+          </div>
           </div>
         </div>
 
