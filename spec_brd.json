@@ -1,0 +1,774 @@
+{
+ "page": {
+  "width_mm": 210,
+  "height_mm": 297,
+  "margins_mm": {
+   "top": 25,
+   "bottom": 25,
+   "left": 20,
+   "right": 20
+  }
+ },
+ "header": "D220-[ProjectNo] - Business Requirements Document (BRD) - Hotel Booking Platform | ver 2026",
+ "footer": "Proprietary and confidential - Dokumen induk dari FSD/TSD ver 2026",
+ "footer_page_numbers": true,
+ "blocks": [
+  {
+   "type": "heading",
+   "text": "Dokumen Business Requirements (BRD)",
+   "level": 1
+  },
+  {
+   "type": "paragraph",
+   "text": "Proyek: Hotel Booking Platform (HotelKu)"
+  },
+  {
+   "type": "paragraph",
+   "text": "Unit/Kerja: Workshop Pengembangan Sistem (D220) — Nomor Dokumen: D220-[ProjectNo]-BRD ver 2026"
+  },
+  {
+   "type": "heading",
+   "text": "Riwayat Dokumen",
+   "level": 2
+  },
+  {
+   "type": "table",
+   "header": [
+    "Versi",
+    "Tanggal",
+    "Penulis",
+    "Perubahan",
+    "Status"
+   ],
+   "rows": [
+    [
+     "0.1",
+     "28-OCT-2026",
+     "Tim Proyek HotelKu (Business Analyst)",
+     "Draf awal hasil workshop kebutuhan bisnis",
+     "Draf"
+    ],
+    [
+     "1.0",
+     "04-NOV-2026",
+     "Tim Proyek HotelKu (Business Analyst)",
+     "Finalisasi; selaras dengan FSD/TSD/UAT ver 2026",
+     "Diajukan untuk persetujuan"
+    ]
+   ],
+   "style": "Table Grid"
+  },
+  {
+   "type": "heading",
+   "text": "Persetujuan",
+   "level": 2
+  },
+  {
+   "type": "table",
+   "header": [
+    "Peran",
+    "Nama",
+    "Tanggal",
+    "Tanda Tangan"
+   ],
+   "rows": [
+    [
+     "Project Manager",
+     "<Nama Project Manager>",
+     "<DD-MON-YYYY>",
+     ""
+    ],
+    [
+     "Business Owner (Manajemen Hotel)",
+     "<Nama Business Owner>",
+     "<DD-MON-YYYY>",
+     ""
+    ],
+    [
+     "IT Lead",
+     "<Nama IT Lead>",
+     "<DD-MON-YYYY>",
+     ""
+    ],
+    [
+     "Finance Lead",
+     "<Nama Finance Lead>",
+     "<DD-MON-YYYY>",
+     ""
+    ]
+   ],
+   "style": "Table Grid"
+  },
+  {
+   "type": "heading",
+   "text": "Referensi Dokumen Terkait",
+   "level": 2
+  },
+  {
+   "type": "paragraph",
+   "text": "Referensi BRD/FSD/TSD: Dokumen Functional Specification (FSD) ver 2026 (D220-[ProjectNo]-Dokumen Functional Specification(FSD) ver 2026) dan Dokumen Technical Specification (TSD) ver 2026 (D220-[ProjectNo]-Dokumen Technical Specification(TSD) ver 2026). BRD ini adalah dokumen induk; FSD memecahnya menjadi FR-xxx/UC-xxx, dan TSD memetakan FR ke endpoint API serta skema database. Dokumen UAT Scenario ver 2026 menjadi acuan penerimaan."
+  },
+  {
+   "type": "paragraph",
+   "text": "Referensi UX/sumber eksternal: Mockup-HotelKu.html (mockup antarmuka di repositori Workshop), laporan UAT-Report-HotelBooking-Prototype.md (70 skenario, 70 lulus, 03-NOV-2026), dan repositori https://github.com/CarloJeremy/Workshop."
+  },
+  {
+   "type": "paragraph",
+   "text": "Konvensi penomoran: BG-xx = tujuan bisnis/KPI (bagian 2); BR-xxx = kebutuhan bisnis (bagian 5); BR-RULE-xx = aturan bisnis (bagian 7, mengikuti sitasi BR-RULE-09 pada FSD); FR-xxx dan UC-xxx didefinisikan di FSD. Satu kebutuhan hanya memiliki satu ID di seluruh dokumen."
+  },
+  {
+   "type": "page_break"
+  },
+  {
+   "type": "toc"
+  },
+  {
+   "type": "heading",
+   "text": "1. Latar Belakang dan Konteks Bisnis",
+   "level": 1
+  },
+  {
+   "type": "paragraph",
+   "text": "Proses pemesanan kamar hotel saat ini bergantung pada kanal manual (telepon, email, dan agen perjalanan) yang menimbulkan biaya operasional tinggi dan risiko kesalahan data. Berikut titik nyeri (as-is) yang mendorong proyek ini:"
+  },
+  {
+   "type": "bullet_list",
+   "items": [
+    "Pemesanan manual berisiko double booking karena tidak ada pemeriksaan ketersediaan dan kunci inventaris secara terpusat.",
+    "Pelanggan tidak memiliki kanal mandiri untuk mencari hotel, memesan, membayar, dan memperoleh bukti pemesanan secara instan.",
+    "Pembayaran belum terhubung ke payment gateway, sehingga verifikasi transfer masih manual dan rawan keterlambatan.",
+    "Proses pembatalan dan pengembalian dana (refund) tidak transparan; keputusan tidak terdokumentasi dan dana dapat ditransfer tanpa persetujuan berjenjang.",
+    "Tidak ada jejak audit (audit trail) atas perubahan status booking, pembayaran, dan refund, sehingga sulit melakukan investigasi dan pelaporan.",
+    "Bukti pemesanan masih berupa dokumen manual tanpa QR code yang dapat diverifikasi saat kedatangan tamu."
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": "Kondisi yang diinginkan (to-be): sebuah platform pemesanan hotel online yang menangani seluruh siklus dari registrasi akun, pencarian hotel, pemesanan, pembayaran melalui payment gateway dengan callback yang terverifikasi, hingga penerbitan invoice dan E-Ticket QR via email — lengkap dengan pembatalan berbasis kebijakan, refund yang memerlukan persetujuan Finance, kontrol akses berbasis peran (RBAC), dan audit trail. Platform ini menjadi kanal utama pemesanan yang mengurangi ketergantungan pada proses manual serta meningkatkan kepercayaan pelanggan melalui transparansi status dan kecepatan layanan."
+  },
+  {
+   "type": "heading",
+   "text": "2. Tujuan Bisnis dan Indikator Keberhasilan",
+   "level": 1
+  },
+  {
+   "type": "table",
+   "header": [
+    "ID",
+    "Tujuan Bisnis",
+    "Metrik (KPI)",
+    "Target 12 Bulan"
+   ],
+   "rows": [
+    [
+     "BG-01",
+     "Mengalihkan pemesanan ke kanal digital end-to-end",
+     "Persentase booking yang diproses melalui platform",
+     ">= 80% dari total pemesanan"
+    ],
+    [
+     "BG-02",
+     "Menghilangkan risiko double booking",
+     "Jumlah insiden double booking",
+     "0 insiden"
+    ],
+    [
+     "BG-03",
+     "Menjaga kecepatan dan kualitas layanan",
+     "Respons API P95 (acuan TSD bagian 9) dan skenario UAT lulus",
+     "P95 <= 2 detik; 100% skenario UAT lulus (capaian aktual 70/70)"
+    ],
+    [
+     "BG-04",
+     "Mempercepat proses refund yang transparan",
+     "Waktu proses refund dari pengajuan hingga selesai",
+     "<= 3 hari kerja untuk 90% pengajuan"
+    ],
+    [
+     "BG-05",
+     "Melindungi keamanan akun dan dana pelanggan",
+     "Insiden akses tidak sah / kebocoran data pembayaran",
+     "0 insiden; 100% transaksi memakai callback bertanda tangan"
+    ],
+    [
+     "BG-06",
+     "Menyediakan tata kelola yang dapat diaudit",
+     "Perubahan status penting yang tercatat di audit log",
+     "100% tercatat"
+    ],
+    [
+     "BG-07",
+     "Menjaga ketersediaan layanan",
+     "Uptime platform pada jam operasional",
+     ">= 99,5% per bulan"
+    ]
+   ],
+   "style": "Table Grid"
+  },
+  {
+   "type": "heading",
+   "text": "3. Ruang Lingkup Bisnis",
+   "level": 1
+  },
+  {
+   "type": "paragraph",
+   "text": "In scope (Fase 1):"
+  },
+  {
+   "type": "bullet_list",
+   "items": [
+    "Registrasi akun pelanggan dengan verifikasi OTP dan aktivasi akun (MOD-01).",
+    "Login, manajemen sesi (refresh token), dan logout (MOD-02).",
+    "Pencarian hotel berdasarkan destinasi, tanggal check-in/check-out, dan jumlah tamu (MOD-03).",
+    "Pemesanan kamar dengan nomor booking unik, perhitungan harga, dan batas pembayaran 30 menit (MOD-04).",
+    "Pembayaran melalui payment gateway dengan callback bertanda tangan dan invoice (MOD-05).",
+    "E-Ticket PDF dengan QR code dan pengiriman via email (MOD-06).",
+    "Riwayat pemesanan milik pelanggan (MOD-07).",
+    "Pembatalan booking berdasarkan kebijakan hotel (MOD-08).",
+    "Pengelolaan refund: perhitungan penalty, persetujuan Finance, dan eksekusi pengembalian dana (MOD-09).",
+    "Kontrol akses berbasis peran (Customer, Travel Consultant, Finance, Admin, Management) dan jejak audit."
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": "Out of scope (Fase 1):"
+  },
+  {
+   "type": "bullet_list",
+   "items": [
+    "Aplikasi mobile native — kanal mobile dipenuhi melalui web yang ramah perangkat genggam pada Fase 1.",
+    "Integrasi ke hotel provider/payment gateway produksi nyata — Fase 1 memakai mock/sandbox internal.",
+    "Penyimpanan data kartu kredit secara langsung — pembayaran kartu ditangani tokenisasi oleh payment gateway.",
+    "Manajemen master data hotel oleh pihak hotel (CRUD inventori) — data referensi disiapkan tim proyek.",
+    "Multi-mata uang dan perpajakan internasional — Fase 1 beroperasi dalam Rupiah (IDR).",
+    "Program loyalitas/poin dan promosi dinamis — dijadwalkan pada fase lanjutan.",
+    "Laporan keuangan lengkap — Fase 1 hanya menyediakan monitoring audit dan log notifikasi."
+   ]
+  },
+  {
+   "type": "heading",
+   "text": "4. Pemangku Kepentingan",
+   "level": 1
+  },
+  {
+   "type": "table",
+   "header": [
+    "Pemangku Kepentingan",
+    "Peran",
+    "Kepentingan"
+   ],
+   "rows": [
+    [
+     "Customer (pelanggan)",
+     "Pengguna utama platform",
+     "Kemudahan mencari, memesan, membayar, dan memperoleh E-Ticket; kejelasan kebijakan pembatalan dan refund."
+    ],
+    [
+     "Travel Consultant",
+     "Pendamping layanan perjalanan",
+     "Membuat pemesanan/pembayaran atas nama pelanggan sesuai kewenangan."
+    ],
+    [
+     "Finance",
+     "Pengendali keuangan",
+     "Meninjau dan menyetujui/menolak refund; memastikan dana tidak keluar tanpa persetujuan."
+    ],
+    [
+     "Admin",
+     "Pengelola sistem",
+     "Akses penuh atas operasional dan penyelesaian masalah."
+    ],
+    [
+     "Management",
+     "Pengawas",
+     "Monitoring data, audit, dan pelaporan (read-only)."
+    ],
+    [
+     "Payment Gateway (mitra)",
+     "Pemroses pembayaran",
+     "Memproses transaksi dan mengirim callback status pembayaran."
+    ],
+    [
+     "Hotel API Provider (mitra)",
+     "Penyedia data hotel",
+     "Menyediakan harga, fasilitas, kebijakan, dan ketersediaan kamar."
+    ],
+    [
+     "Tim IT / QA",
+     "Pembangun dan penguji",
+     "Kualitas implementasi, keamanan, dan kepatuhan terhadap FSD/TSD."
+    ],
+    [
+     "Project Manager",
+     "Penanggung jawab proyek",
+     "Kesesuaian lingkup, jadwal, dan kualitas dokumen serta deliverable."
+    ]
+   ],
+   "style": "Table Grid"
+  },
+  {
+   "type": "heading",
+   "text": "5. Kebutuhan Bisnis",
+   "level": 1
+  },
+  {
+   "type": "paragraph",
+   "text": "Setiap kebutuhan dipecah menjadi fungsi rinci (FR-xxx) pada FSD dan dipetakan ke API pada TSD."
+  },
+  {
+   "type": "table",
+   "header": [
+    "ID",
+    "Kebutuhan Bisnis",
+    "Kategori",
+    "Prioritas"
+   ],
+   "rows": [
+    [
+     "BR-001",
+     "Calon pelanggan dapat mendaftar dengan email dan password lalu mengaktifkan akun melalui verifikasi OTP.",
+     "Akun",
+     "Must"
+    ],
+    [
+     "BR-002",
+     "Pelanggan dapat login dan mengelola sesi secara aman (token kedaluwarsa, refresh, logout).",
+     "Akun",
+     "Must"
+    ],
+    [
+     "BR-003",
+     "Pelanggan dapat mencari hotel berdasarkan destinasi, periode menginap, dan jumlah tamu beserta informasi harga, rating, dan ketersediaan.",
+     "Transaksi",
+     "Must"
+    ],
+    [
+     "BR-004",
+     "Pelanggan dapat memesan kamar yang tersedia dan memperoleh nomor booking unik beserta rincian harga.",
+     "Transaksi",
+     "Must"
+    ],
+    [
+     "BR-005",
+     "Pelanggan dapat membayar pemesanan melalui metode yang didukung payment gateway, dengan status pembayaran yang terkonfirmasi otomatis.",
+     "Pembayaran",
+     "Must"
+    ],
+    [
+     "BR-006",
+     "Sistem menerbitkan invoice dan E-Ticket QR setelah pembayaran berhasil serta mengirimkannya ke email pelanggan.",
+     "Dokumen",
+     "Must"
+    ],
+    [
+     "BR-007",
+     "Pelanggan dapat melihat riwayat pemesanan miliknya sendiri.",
+     "Transaksi",
+     "Must"
+    ],
+    [
+     "BR-008",
+     "Pelanggan dapat membatalkan pemesanan sesuai kebijakan hotel dengan estimasi penalty/refund yang ditampilkan sebelum konfirmasi.",
+     "Transaksi",
+     "Must"
+    ],
+    [
+     "BR-009",
+     "Sistem mengelola pengembalian dana (refund) dengan perhitungan penalty dan persetujuan Finance sebelum dana ditransfer.",
+     "Keuangan",
+     "Must"
+    ],
+    [
+     "BR-010",
+     "Sistem menyediakan pemesanan yang bebas double booking (penguncian inventaris dan pengecekan tumpang tindih periode).",
+     "Transaksi",
+     "Must"
+    ],
+    [
+     "BR-011",
+     "Sistem secara otomatis membatalkan pemesanan yang tidak dibayar dalam 30 menit dan melepaskan inventaris.",
+     "Transaksi",
+     "Must"
+    ],
+    [
+     "BR-012",
+     "Sistem mengirim notifikasi email (OTP, konfirmasi booking, E-Ticket) dan mencatat status pengirimannya.",
+     "Komunikasi",
+     "Must"
+    ],
+    [
+     "BR-013",
+     "Sistem mencatat jejak audit untuk setiap perubahan status penting (siapa, apa, kapan, nilai lama-baru).",
+     "Tata Kelola",
+     "Must"
+    ],
+    [
+     "BR-014",
+     "Admin, Finance, dan Management dapat memantau audit dan log notifikasi sesuai hak akses masing-masing.",
+     "Tata Kelola",
+     "Should"
+    ],
+    [
+     "BR-015",
+     "E-Ticket dapat diverifikasi keasliannya melalui QR code saat tamu datang.",
+     "Dokumen",
+     "Must"
+    ]
+   ],
+   "style": "Table Grid"
+  },
+  {
+   "type": "heading",
+   "text": "6. Proses Bisnis Utama",
+   "level": 1
+  },
+  {
+   "type": "paragraph",
+   "text": "Alur utama (happy path) pemesanan:"
+  },
+  {
+   "type": "numbered_list",
+   "items": [
+    "Calon pelanggan mendaftar dengan email dan password; sistem membuat akun berstatus Pending Verification dan mengirim OTP 6 digit ke email.",
+    "Pelanggan memasukkan OTP; sistem memvalidasi dan mengaktifkan akun (status Active).",
+    "Pelanggan login; sistem menerbitkan token akses dan mencatat waktu login terakhir.",
+    "Pelanggan mencari hotel berdasarkan destinasi, tanggal check-in/check-out, dan jumlah tamu; sistem menampilkan hotel aktif yang tersedia beserta harga, rating, dan fasilitas.",
+    "Pelanggan memilih kamar dan mengisi data pemesanan; sistem memvalidasi ketersediaan, menghitung total (malam x harga per malam), dan menerbitkan nomor booking dengan status Pending Payment (batas bayar 30 menit).",
+    "Pelanggan memilih metode pembayaran; sistem berkomunikasi dengan payment gateway dan menerbitkan referensi pembayaran.",
+    "Payment gateway mengirim callback status pembayaran; sistem memverifikasi tanda tangan (HMAC) dan memproses secara idempoten.",
+    "Setelah pembayaran berhasil, sistem menerbitkan invoice dan E-Ticket PDF berisi QR code, lalu mengirimkannya ke email pelanggan; status booking menjadi Paid.",
+    "Pelanggan menginap dan E-Ticket diverifikasi melalui QR code saat kedatangan; riwayat booking tercatat sebagai Completed."
+   ]
+  },
+  {
+   "type": "paragraph",
+   "text": "Alur pengecualian:"
+  },
+  {
+   "type": "bullet_list",
+   "items": [
+    "Kedaluwarsa pembayaran: booking yang tidak dibayar dalam 30 menit otomatis menjadi Expired dan inventaris dilepaskan (BR-RULE-08).",
+    "Pembayaran gagal/nominal tidak cocok: booking tetap Pending Payment; pelanggan dapat mencoba pembayaran ulang hingga batas waktu.",
+    "Callback berulang/duplikat: sistem mengabaikan duplikat berdasarkan ID transaksi eksternal tanpa memproses ganda (BR-RULE-11).",
+    "Pembatalan oleh pelanggan: sistem menampilkan ketentuan dan estimasi penalty/refund; setelah konfirmasi, booking menjadi Cancelled dan pengajuan refund dibuat bila memenuhi syarat (BR-RULE-10).",
+    "Pengajuan refund: sistem menghitung penalty dan refund amount, lalu menunggu keputusan Finance — approve memicu eksekusi transfer (Processing -> Completed atau Failed), reject membatalkan transfer dengan alasan tercatat (BR-RULE-09).",
+    "Percobaan login gagal berulang: akun terkunci setelah 5 kali kegagalan dalam 30 menit (BR-RULE-05).",
+    "OTP salah/kedaluwarsa: percobaan dihitung (maksimal 3) dan OTP kedaluwarsa ditolak; pelanggan dapat meminta OTP baru (BR-RULE-03, BR-RULE-04)."
+   ]
+  },
+  {
+   "type": "heading",
+   "text": "7. Aturan Bisnis",
+   "level": 1
+  },
+  {
+   "type": "table",
+   "header": [
+    "ID",
+    "Aturan Bisnis",
+    "Keterangan"
+   ],
+   "rows": [
+    [
+     "BR-RULE-01",
+     "Satu email hanya dapat digunakan untuk satu akun pelanggan.",
+     "Keunikan email ditegakkan saat registrasi."
+    ],
+    [
+     "BR-RULE-02",
+     "Password minimal 8 karakter dan disimpan dalam bentuk ter-hash.",
+     "Tidak boleh plain text; hash aman ditentukan TSD."
+    ],
+    [
+     "BR-RULE-03",
+     "Akun hanya aktif setelah OTP berhasil diverifikasi; OTP 6 digit berlaku 10 menit dengan maksimal 3 percobaan.",
+     "OTP hanya untuk verifikasi registrasi."
+    ],
+    [
+     "BR-RULE-04",
+     "Permintaan OTP baru memiliki cooldown 60 detik dan maksimal 5 kali per jam; OTP lama tidak berlaku setelah OTP baru terbit.",
+     "Mencegah penyalahgunaan pengiriman OTP."
+    ],
+    [
+     "BR-RULE-05",
+     "Akun terkunci selama 30 menit setelah 5 kali percobaan login gagal.",
+     "Setelah masa kunci berakhir, akses dipulihkan."
+    ],
+    [
+     "BR-RULE-06",
+     "Tanggal check-out wajib lebih besar dari check-in; jumlah tamu harus valid dan sesuai kapasitas kamar; hanya hotel aktif dan kamar tersedia yang dapat dipesan.",
+     "Ketersediaan diperiksa ulang sebelum booking dibuat."
+    ],
+    [
+     "BR-RULE-07",
+     "Total pembayaran dihitung dari durasi menginap (malam) dikalikan harga kamar per malam, ditambah biaya lain bila ada, dan ditampilkan kepada pelanggan sebelum konfirmasi.",
+     "Dasar perhitungan penalty/refund."
+    ],
+    [
+     "BR-RULE-08",
+     "Booking berstatus Pending Payment yang tidak dibayar dalam 30 menit menjadi Expired dan inventaris yang di-hold dilepaskan.",
+     "Dijalankan oleh job otomatis (TSD bagian 8)."
+    ],
+    [
+     "BR-RULE-09",
+     "Keputusan Finance menentukan status refund: approve -> Approved -> Processing -> Completed (atau Failed); reject -> Rejected dengan alasan tercatat.",
+     "Dana TIDAK boleh ditransfer sebelum persetujuan Finance; keputusan dan alasan wajib tercatat di audit. Dirujuk FSD sebagai BR-RULE-09."
+    ],
+    [
+     "BR-RULE-10",
+     "Penalty pembatalan mengikuti kebijakan kamar: Flexible dikenakan penalty 10% dari pembayaran yang memenuhi syarat; NonRefundable tidak dapat dikembalikan.",
+     "Estimasi ditampilkan sebelum pelanggan mengonfirmasi pembatalan."
+    ],
+    [
+     "BR-RULE-11",
+     "Callback payment gateway wajib lolos verifikasi tanda tangan (HMAC) dan diproses secara idempoten berdasarkan ID transaksi eksternal.",
+     "Callback tanpa tanda tangan valid ditolak; duplikat tidak diproses ganda."
+    ],
+    [
+     "BR-RULE-12",
+     "Satu booking menghasilkan satu E-Ticket dengan QR code unik; penerbitan ulang hanya dapat dilakukan pemilik booking.",
+     "QR diverifikasi keasliannya oleh sistem."
+    ],
+    [
+     "BR-RULE-13",
+     "Data booking, pembayaran, dan refund hanya dapat diakses oleh pemiliknya atau peran yang berwenang.",
+     "Pelanggan tidak dapat mengakses data pelanggan lain."
+    ],
+    [
+     "BR-RULE-14",
+     "Setiap perubahan status booking, pembayaran, pembatalan, dan refund wajib dicatat dalam audit log.",
+     "Memuat pelaku, aksi, nilai lama-baru, dan waktu."
+    ],
+    [
+     "BR-RULE-15",
+     "Nomor booking, nomor invoice, dan referensi pembayaran bersifat unik.",
+     "Mencegah duplikasi transaksi."
+    ]
+   ],
+   "style": "Table Grid"
+  },
+  {
+   "type": "heading",
+   "text": "8. Kepatuhan dan Regulasi",
+   "level": 1
+  },
+  {
+   "type": "bullet_list",
+   "items": [
+    "Perlindungan data pribadi: pemrosesan data pelanggan mengacu pada UU No. 27 Tahun 2022 tentang Pelindungan Data Pribadi; data hanya digunakan untuk tujuan pemesanan dan wajib dilindungi.",
+    "Keamanan pembayaran: nomor kartu tidak disimpan di sistem (tokenisasi oleh payment gateway); pemrosesan mengikuti prinsip PCI-DSS melalui mitra tersertifikasi.",
+    "Keamanan transport: seluruh komunikasi eksternal memakai TLS 1.2+ (HTTPS) dengan HSTS (TSD bagian 2.3).",
+    "Perlindungan konsumen: ketentuan pembatalan dan refund ditampilkan secara transparan sebelum konfirmasi (UU No. 8 Tahun 1999).",
+    "Perpajakan: transaksi tunduk pada ketentuan pajak yang berlaku untuk layanan akomodasi (contoh: PPN 11% — nilai contoh, disesuaikan aturan terkini).",
+    "Retensi dan audit: audit log dan catatan transaksi disimpan minimal 5 tahun untuk keperluan investigasi dan pelaporan (nilai contoh — disesuaikan kebijakan perusahaan)."
+   ]
+  },
+  {
+   "type": "heading",
+   "text": "9. Risiko, Asumsi, Kendala",
+   "level": 1
+  },
+  {
+   "type": "table",
+   "header": [
+    "Jenis",
+    "Deskripsi",
+    "Mitigasi / Penanganan"
+   ],
+   "rows": [
+    [
+     "Risiko",
+     "Ketergantungan pada ketersediaan Hotel API Provider.",
+     "Adapter dengan retry, circuit breaker, dan fallback sesuai TSD bagian 3."
+    ],
+    [
+     "Risiko",
+     "Kegagalan atau keterlambatan callback payment gateway.",
+     "Callback idempoten, verifikasi tanda tangan, mekanisme rekonsiliasi berkala."
+    ],
+    [
+     "Risiko",
+     "Double booking saat lonjakan pemesanan.",
+     "Penguncian inventaris per kamar dan pengecekan tumpang tindih periode (BR-RULE-06)."
+    ],
+    [
+     "Risiko",
+     "Penyalahgunaan OTP atau percobaan login (brute force).",
+     "Rate limit OTP, batas percobaan, dan penguncian akun (BR-RULE-04, BR-RULE-05)."
+    ],
+    [
+     "Risiko",
+     "Kesalahan transfer dana refund.",
+     "Dana hanya ditransfer setelah persetujuan Finance dengan audit lengkap (BR-RULE-09)."
+    ],
+    [
+     "Asumsi",
+     "Payment gateway mendukung callback dengan tanda tangan HMAC dan mekanisme refund.",
+     "Dikonfirmasi saat pemilihan mitra; skema callback dirancang ulang bila berbeda."
+    ],
+    [
+     "Asumsi",
+     "Hotel provider menyediakan data harga dan ketersediaan yang mutakhir.",
+     "Perjanjian SLA data dengan mitra; pengecekan ulang ketersediaan sebelum booking."
+    ],
+    [
+     "Asumsi",
+     "Pelanggan memiliki akses email untuk OTP dan E-Ticket.",
+     "Menyediakan mekanisme resend OTP dan penerbitan ulang E-Ticket."
+    ],
+    [
+     "Kendala",
+     "Prototipe saat ini menyimpan data in-memory (hilang saat restart).",
+     "Implementasi produksi wajib memakai PostgreSQL sesuai TSD bagian 6."
+    ],
+    [
+     "Kendala",
+     "Email, PDF, dan payment gateway masih mock pada fase prototipe.",
+     "Diganti implementasi nyata pada fase implementasi produksi."
+    ]
+   ],
+   "style": "Table Grid"
+  },
+  {
+   "type": "heading",
+   "text": "10. Referensi",
+   "level": 1
+  },
+  {
+   "type": "table",
+   "header": [
+    "Referensi",
+    "Deskripsi",
+    "Tautan"
+   ],
+   "rows": [
+    [
+     "FSD ver 2026",
+     "Dokumen Functional Specification — spesifikasi fungsi per modul (MOD-01 s/d MOD-09) dan RBAC.",
+     "D220-[ProjectNo]-Dokumen Functional Specification(FSD) ver 2026.pdf"
+    ],
+    [
+     "TSD ver 2026",
+     "Dokumen Technical Specification — arsitektur, teknologi, API, database, keamanan, NFR.",
+     "D220-[ProjectNo]-Dokumen Technical Specification(TSD) ver 2026.docx"
+    ],
+    [
+     "UAT Scenario ver 2026",
+     "Skenario uji penerimaan (69 skenario) menjadi dasar penerimaan bisnis.",
+     "D220-[ProjectNo]-Dokumen UAT Scenario ver 2026.docx"
+    ],
+    [
+     "Laporan UAT Prototipe",
+     "Hasil eksekusi UAT: 70 skenario, 70 lulus, 0 gagal (03-NOV-2026).",
+     "UAT-Report-HotelBooking-Prototype.md"
+    ],
+    [
+     "Prototipe HotelBookingPrototype",
+     "Implementasi ASP.NET Core 8 Web API dari TSD (data in-memory, mock gateway).",
+     "https://github.com/CarloJeremy/Workshop"
+    ],
+    [
+     "Mockup HotelKu",
+     "Mockup antarmuka pengguna platform.",
+     "Mockup-HotelKu.html (folder HotelBookingPrototype)"
+    ]
+   ],
+   "style": "Table Grid"
+  },
+  {
+   "type": "heading",
+   "text": "11. Glosarium",
+   "level": 1
+  },
+  {
+   "type": "table",
+   "header": [
+    "Istilah",
+    "Definisi"
+   ],
+   "rows": [
+    [
+     "BRD",
+     "Business Requirements Document — dokumen kebutuhan bisnis (dokumen ini)."
+    ],
+    [
+     "FSD",
+     "Functional Specification Document — spesifikasi fungsional turunan BRD."
+    ],
+    [
+     "TSD",
+     "Technical Specification Document — spesifikasi teknis implementasi."
+    ],
+    [
+     "UAT",
+     "User Acceptance Testing — pengujian penerimaan oleh pengguna/bisnis."
+    ],
+    [
+     "Booking",
+     "Pemesanan kamar hotel yang menghasilkan nomor booking unik."
+    ],
+    [
+     "Pending Payment",
+     "Status booking yang menunggu pembayaran (batas 30 menit)."
+    ],
+    [
+     "Hold Inventory",
+     "Penguncian sementara kamar saat booking dibuat agar tidak dipesan ganda."
+    ],
+    [
+     "OTP",
+     "One-Time Password — kode verifikasi 6 digit untuk aktivasi akun."
+    ],
+    [
+     "RBAC",
+     "Role-Based Access Control — kontrol akses berbasis peran."
+    ],
+    [
+     "JWT",
+     "JSON Web Token — token akses yang membawa identitas dan peran pengguna."
+    ],
+    [
+     "HMAC",
+     "Hash-based Message Authentication Code — tanda tangan untuk memverifikasi keaslian callback payment gateway."
+    ],
+    [
+     "Payment Gateway",
+     "Penyedia layanan pemrosesan pembayaran pihak ketiga."
+    ],
+    [
+     "Callback",
+     "Notifikasi otomatis dari payment gateway berisi status pembayaran."
+    ],
+    [
+     "Virtual Account (VA)",
+     "Metode pembayaran melalui nomor rekening virtual per transaksi."
+    ],
+    [
+     "Invoice",
+     "Dokumen tagihan yang diterbitkan setelah pembayaran berhasil."
+    ],
+    [
+     "E-Ticket",
+     "Dokumen elektronik bukti pemesanan berisi QR code yang dapat diverifikasi."
+    ],
+    [
+     "Penalty",
+     "Biaya pembatalan sesuai kebijakan kamar (mis. 10% untuk kebijakan Flexible)."
+    ],
+    [
+     "Refund",
+     "Pengembalian dana setelah pembatalan, tunduk pada persetujuan Finance."
+    ],
+    [
+     "Audit Log",
+     "Catatan perubahan status penting: pelaku, aksi, nilai lama-baru, waktu."
+    ],
+    [
+     "BG / BR / BR-RULE",
+     "Penomoran kebutuhan dalam dokumen ini: tujuan bisnis / kebutuhan bisnis / aturan bisnis."
+    ]
+   ],
+   "style": "Table Grid"
+  }
+ ]
+}
